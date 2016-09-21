@@ -239,6 +239,49 @@ BOOST_AUTO_TEST_CASE(from_koopman_polynomial)
 BOOST_AUTO_TEST_CASE(reverse_polynomial)
 {
 	namespace polynomials = indi::crc::polynomials;
+	namespace polynomials = indi::crc::polynomials;
+	
+	// Check the return type.
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_fast8_t,
+			decltype(polynomials::reversed<4, std::uint_fast8_t>(
+				0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_least32_t,
+			decltype(polynomials::reversed<32, std::uint_least32_t>(
+				0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			unsigned,
+			decltype(polynomials::reversed<8>(0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_fast64_t,
+			decltype(polynomials::reversed<1>(
+				std::uint_fast64_t{0x1u}))>::value));
+	
+	// Check return values.
+	BOOST_CHECK_EQUAL(polynomials::reversed<1>(0b1u), 0b1u);;
+	BOOST_CHECK_EQUAL(polynomials::reversed<2>(0b10u), 0b1u);
+	BOOST_CHECK_EQUAL(polynomials::reversed<2>(0b1u), 0b10u);
+	BOOST_CHECK_EQUAL(polynomials::reversed<4>(0b1u), 0b1000u);
+	BOOST_CHECK_EQUAL(polynomials::reversed<4>(0b1000u), 0b1u);
+	BOOST_CHECK_EQUAL(polynomials::reversed<16>(0x8005u), 0xA001u);
+	BOOST_CHECK_EQUAL(polynomials::reversed<16>(0x1021u), 0x8408u);
+	BOOST_CHECK_EQUAL(polynomials::reversed<32>(0x04C11DB7uL),
+		0xEDB88320uL);
+	BOOST_CHECK_EQUAL(polynomials::reversed<32>(0x1EDC6F41uL),
+		0x82F63B78uL);
+	BOOST_CHECK_EQUAL(polynomials::reversed<64>(
+		0x42F0E1EBA9EA3693uLL), 0xC96C5795D7870F42uLL);
+	BOOST_CHECK_EQUAL(polynomials::reversed<64>(
+		0x000000000000001BuLL), 0xD800000000000000uLL);
+	
+	// Verify constexpr.
+	constexpr auto p = polynomials::reversed<32>(0x741B8CD7uL);
+	BOOST_CHECK_EQUAL(p, 0xEB31D82EuL);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

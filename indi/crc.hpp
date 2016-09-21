@@ -219,6 +219,67 @@ constexpr auto from_koopman(T polynomial) noexcept
     return T(((polynomial << 1) | T(0x1u)) & mask);
 }
 
+//! Converts a polynomial to reversed form.
+//! 
+//! The binary coefficients of a CRC polynomial (not including the
+//! degree term) are usually encoded in integer form so that each
+//! bit `B`, counting from zero as the least significant bit,
+//! corresponds to the coefficient of the `x^B` term. This is
+//! straightforward, but it means that you cannot tell the degree of
+//! the CRC polynomial from the encoded integer.
+//! 
+//! Reversed form is exactly the same as normal form, except the bit
+//! order is reversed. So a 4-bit CRC polynomial like this:
+//! 
+//!     x^4 + (A * x^3) + (B * x^2) + (C * x) + 1
+//! 
+//! (where `A`, `B`, and `C` are all either 0 or 1) will encode to
+//! normal form as `0bABC1`, and to reversed form as `0b1CBA`. Because
+//! bit `N-1` is always 1, you can tell from the reversed form that
+//! this is a 4-bit CRC, because the highest set bit is 3 (which is
+//! `4 - 1`).
+//! 
+//! Of course, the same transformation that converts a polynomial from
+//! normal form to reversed can convert it back from reversed to
+//! normal.
+//! 
+//! \requires `Bits` must be greater than zero. `T` must be at least
+//!           `Bits` bits in size.
+//! 
+//! \tparam Bits  The CRC bit-size.
+//! 
+//! \tparam T The type of the encoded polynomial value.
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! Only the least significant `Bits` bits are used. Any higher bits
+//! are discarded.
+//! 
+//! \returns The given polynomial with the bits reversed.
+template <std::size_t Bits, typename T>
+constexpr auto reversed(T polynomial) noexcept
+{
+	static_assert(std::is_integral<T>::value,
+        "CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+        "CRC type must be unsigned");
+	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
+	static_assert(Bits > 0, "0-bit CRCs make no sense");
+    
+    auto result = T{};
+    
+    // IMPORTANT: The "1" must be cast to T before shifting.
+    for (auto bit = std::size_t{0}; bit < Bits; ++bit)
+    {
+		result <<= 1;
+		result |= polynomial & T(1u);
+		
+		polynomial >>= 1;
+    }
+    
+    return result;
+}
+
 } // namespace polynomials
 
 } // namespace crc
