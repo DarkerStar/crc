@@ -27,8 +27,8 @@ addons:
 
 # Force my compiler choices over Travis's.
 before_script:
-  - [ -n "${INDI_CRC_CC}" ] && export CC="${INDI_CRC_CC}" && unset INDI_CRC_CC
-  - [ -n "${INDI_CRC_CXX}" ] && export CXX="${INDI_CRC_CXX}" && unset INDI_CRC_CXX
+  - if [ -n "${INDI_CRC_CC}" ] ; then export CC="${INDI_CRC_CC}" && unset INDI_CRC_CC ; fi
+  - if [ -n "${INDI_CRC_CXX}" ] ; then export CXX="${INDI_CRC_CXX}" && unset INDI_CRC_CXX ; fi
 
 # `make test` makes the tests and runs them.
 script:
