@@ -179,7 +179,44 @@ constexpr auto to_koopman(T polynomial) noexcept
     
     constexpr auto mask = detail_::ones<Bits, T>();
     
-    return T((polynomial >> 1) | (T(0x1u) << (Bits - 1)) & mask);
+    return T(((polynomial >> 1) | (T(0x1u) << (Bits - 1))) & mask);
+}
+
+//! Converts a polynomial in Koopman form to standard form.
+//! 
+//! For an explanation of Koopman encoding, see the `to_koopman`
+//! documentation.
+//! 
+//! \requires `Bits` must be greater than zero. `T` must be at least
+//!           `Bits` bits in size.
+//! 
+//! \tparam Bits  The CRC bit-size.
+//! 
+//! \tparam T The type of the encoded polynomial value.
+//! 
+//! \param polynomial  The Koopman-encoded polynomial value.
+//! 
+//! No checking is done to ensure that it is a valid encoded `Bits`-bit
+//! CRC polynomial. In particular, the bit at position (`Bits` - 1)
+//! should be set, but this is not checked.
+//! 
+//! Only the least significant `Bits` bits are used. Any higher bits
+//! are discarded.
+//! 
+//! \returns The given Koopman polynomial in standard form.
+template <std::size_t Bits, typename T>
+constexpr auto from_koopman(T polynomial) noexcept
+{
+	static_assert(std::is_integral<T>::value,
+        "CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+        "CRC type must be unsigned");
+	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
+	static_assert(Bits > 0, "0-bit CRCs make no sense");
+    
+    constexpr auto mask = detail_::ones<Bits, T>();
+    
+    return T(((polynomial << 1) | T(0x1u)) & mask);
 }
 
 } // namespace polynomials

@@ -182,9 +182,9 @@ BOOST_AUTO_TEST_CASE(to_koopman_polynomial)
 	BOOST_CHECK_EQUAL(polynomials::to_koopman<32>(0x1EDC6F41uL),
 		0x8F6E37A0uL);
 	BOOST_CHECK_EQUAL(polynomials::to_koopman<64>(
-		0x42F0E1EBA9EA3693uLL), 0xA17870F5D4F51B49);
+		0x42F0E1EBA9EA3693uLL), 0xA17870F5D4F51B49uLL);
 	BOOST_CHECK_EQUAL(polynomials::to_koopman<64>(
-		0x000000000000001BuLL), 0x800000000000000D);
+		0x000000000000001BuLL), 0x800000000000000DuLL);
 	
 	// Verify constexpr.
 	constexpr auto p = polynomials::to_koopman<32>(0x741B8CD7uL);
@@ -194,6 +194,46 @@ BOOST_AUTO_TEST_CASE(to_koopman_polynomial)
 BOOST_AUTO_TEST_CASE(from_koopman_polynomial)
 {
 	namespace polynomials = indi::crc::polynomials;
+	
+	// Check the return type.
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_fast8_t,
+			decltype(polynomials::from_koopman<4, std::uint_fast8_t>(
+				0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_least32_t,
+			decltype(polynomials::from_koopman<32, std::uint_least32_t>(
+				0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			unsigned,
+			decltype(polynomials::from_koopman<8>(0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_fast64_t,
+			decltype(polynomials::from_koopman<1>(
+				std::uint_fast64_t{0x1u}))>::value));
+	
+	// Check return values.
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<1>(0b1u), 0b1u);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<2>(0b10u), 0b1u);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<4>(0b1000u), 0b1u);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<16>(0xC002u), 0x8005u);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<16>(0x8810u), 0x1021u);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<32>(0x82608EDBuL),
+		0x04C11DB7uL);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<32>(0x8F6E37A0uL),
+		0x1EDC6F41uL);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<64>(
+		0xA17870F5D4F51B49uLL), 0x42F0E1EBA9EA3693uLL);
+	BOOST_CHECK_EQUAL(polynomials::from_koopman<64>(
+		0x800000000000000DuLL), 0x000000000000001BuLL);
+	
+	// Verify constexpr.
+	constexpr auto p = polynomials::from_koopman<32>(0xBA0DC66BuL);
+	BOOST_CHECK_EQUAL(p, 0x741B8CD7uL);
 }
 
 BOOST_AUTO_TEST_CASE(reverse_polynomial)
