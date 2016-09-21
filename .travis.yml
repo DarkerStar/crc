@@ -1,0 +1,30 @@
+# Set language to C++.
+language: cpp
+
+# Only do testing on master, develop, and release branches (release pending).
+branches:
+  only:
+  - master
+  - develop
+
+# For now, only test with g++ 6
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env: COMPILER=g++-6
+
+# Also install the Boost.Test package.
+addons:
+  apt:
+    packages:
+      - libboost-test-dev
+
+# `make test` makes the tests and runs them.
+script:
+  - make test
