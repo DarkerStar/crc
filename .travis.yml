@@ -17,7 +17,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-      env: COMPILER=g++-6
+      env: CC=gcc-6 CXX=g++-6
 
 # Also install the Boost.Test package.
 addons:
