@@ -17,13 +17,18 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-      env: CC=gcc-6 CXX=g++-6
+      env: INDI_CRC_CC=gcc-6 INDI_CRC_CXX=g++-6
 
 # Also install the Boost.Test package.
 addons:
   apt:
     packages:
       - libboost-test-dev
+
+# Force my compiler choices over Travis's.
+before_script:
+  - [ -n "${INDI_CRC_CC}" ] && export CC="${INDI_CRC_CC}" && unset INDI_CRC_CC
+  - [ -n "${INDI_CRC_CXX}" ] && export CXX="${INDI_CRC_CXX}" && unset INDI_CRC_CXX
 
 # `make test` makes the tests and runs them.
 script:
