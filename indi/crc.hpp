@@ -26,6 +26,36 @@ namespace crc {
 
 namespace detail_ {
 
+//! CRC type guesser.
+//! 
+//! This type is intended to simplify the CRC interface by automatically
+//! selecting an appropriate type for a given bit size. For example, if
+//! `Bits` is 32, the `type` member is `std::uint_fast32_t`.
+//! 
+//! Note that the type selected is always of the `fast` family.
+//! 
+//! Currently only 8, 16, 32, and 64 bit sizes are possible, but in
+//! future any bit size up to and including 64 bits will be valid.
+template <std::size_t Bits>
+struct crc_type
+{
+	static_assert(Bits == 8 || Bits == 16 || Bits == 32 || Bits == 64,
+		"only 8, 16, 32, or 64-bit CRCs supported by default");
+	
+	using type = std::conditional_t<Bits == 8,
+		std::uint_fast8_t,
+		std::conditional_t<Bits == 16,
+			std::uint_fast16_t,
+			std::conditional_t<Bits == 32,
+				std::uint_fast32_t,
+				std::uint_fast64_t>
+			>
+		>;
+};
+
+template <std::size_t Bits>
+using crc_type_t = typename crc_type<Bits>::type;
+
 //! Create a value with a given number of set bits.
 //! 
 //! This produces a value of type `T` with the `Bits` least significant

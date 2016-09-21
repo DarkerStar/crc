@@ -123,6 +123,29 @@ BOOST_AUTO_TEST_CASE(polynomial_detail_ones)
 	BOOST_CHECK_MESSAGE(sizeof(dummy) == 0b111u, "not constexpr");
 }
 
+BOOST_AUTO_TEST_CASE(polynomial_detail_crc_type)
+{
+	namespace detail = indi::crc::detail_;
+	
+	BOOST_CHECK((std::is_same<typename detail::crc_type<8>::type,
+		std::uint_fast8_t>::value));
+	BOOST_CHECK((std::is_same<typename detail::crc_type<16>::type,
+		std::uint_fast16_t>::value));
+	BOOST_CHECK((std::is_same<typename detail::crc_type<32>::type,
+		std::uint_fast32_t>::value));
+	BOOST_CHECK((std::is_same<typename detail::crc_type<64>::type,
+		std::uint_fast64_t>::value));
+	
+	BOOST_CHECK((std::is_same<detail::crc_type_t<8>,
+		std::uint_fast8_t>::value));
+	BOOST_CHECK((std::is_same<detail::crc_type_t<16>,
+		std::uint_fast16_t>::value));
+	BOOST_CHECK((std::is_same<detail::crc_type_t<32>,
+		std::uint_fast32_t>::value));
+	BOOST_CHECK((std::is_same<detail::crc_type_t<64>,
+		std::uint_fast64_t>::value));
+}
+
 BOOST_AUTO_TEST_CASE(to_koopman_polynomial)
 {
 	namespace polynomials = indi::crc::polynomials;
