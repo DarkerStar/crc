@@ -70,7 +70,7 @@ using crc_type_t = typename crc_type<Bits>::type;
 //!     ones<18, uint_64>; // produces uint_64(0x3'ffffuLL)
 //! 
 //! \requires `Bits` must be greater than zero. `T` must be at least
-//!           `Bits` bits.
+//!           `Bits` bits in size.
 //! 
 //! \tparam Bits  The number of set bits to produce.
 //! \tparam T     The type to produce.
@@ -124,6 +124,63 @@ constexpr auto crc32 = crc32_ieee;
 constexpr auto crc64_iso  = std::uint_fast64_t(0x000000000000001BuLL);
 constexpr auto crc64_ecma = std::uint_fast64_t(0x42F0E1EBA9EA3693uLL);
 // Not sure which polynomial should be considered "CRC64".
+
+//! Converts a polynomial to Koopman form.
+//! 
+//! A `N`-bit CRC polynomial always has at least two non-zero
+//! coefficients: the coefficient of the constant term (that is, 1),
+//! and the coefficient that defines its degree to `N`. So a 4-bit
+//! CRC polynomial will always look like this:
+//! 
+//!     x^4 + (A * x^3) + (B * x^2) + (C * x) + 1
+//! 
+//! where `A`, `B`, and `C` are all either 0 or 1.
+//! 
+//! Normal encoding ignores the degree coefficient, but encodes all the
+//! other coefficients in order. So the bits for the polynomial above
+//! would be `0bABC1` (the least significant bit is always 1).
+//! 
+//! Koopman encoding, named after Philip Koopman, instead ignores the
+//! constant term, and encodes the degree term coefficient. So the bits
+//! for the Koopman rendering of the polynomial above would be
+//! `0b1ABC`.
+//! 
+//! Koopman encoding has the benefit that the CRC's bit size is always
+//! encoded - it is always identifiable by the most significant bit
+//! set. For example, if you see `0b001?'????`, you know it's a 6-bit
+//! CRC.
+//! 
+//! \requires `Bits` must be greater than zero. `T` must be at least
+//!           `Bits` bits in size.
+//! 
+//! \tparam Bits  The CRC bit-size.
+//! 
+//! \tparam T The type of the encoded polynomial value.
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! No checking is done to ensure that it is a valid encoded `Bits`-bit
+//! CRC polynomial. In particular, the least significant bit should be
+//! set, but this is not checked.
+//! 
+//! Only the least significant `Bits` bits are used. Any higher bits
+//! are discarded.
+//! 
+//! \returns The Koopman encoding of the supplied polynomial.
+template <std::size_t Bits, typename T>
+constexpr auto to_koopman(T polynomial) noexcept
+{
+	static_assert(std::is_integral<T>::value,
+        "CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+        "CRC type must be unsigned");
+	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
+	static_assert(Bits > 0, "0-bit CRCs make no sense");
+    
+    constexpr auto mask = detail_::ones<Bits, T>();
+    
+    return T((polynomial >> 1) | (T(0x1u) << (Bits - 1)) & mask);
+}
 
 } // namespace polynomials
 

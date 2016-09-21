@@ -149,6 +149,46 @@ BOOST_AUTO_TEST_CASE(polynomial_detail_crc_type)
 BOOST_AUTO_TEST_CASE(to_koopman_polynomial)
 {
 	namespace polynomials = indi::crc::polynomials;
+	
+	// Check the return type.
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_fast8_t,
+			decltype(polynomials::to_koopman<4, std::uint_fast8_t>(
+				0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_least32_t,
+			decltype(polynomials::to_koopman<32, std::uint_least32_t>(
+				0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			unsigned,
+			decltype(polynomials::to_koopman<8>(0x1u))>::value));
+	BOOST_CHECK((
+		std::is_same<
+			std::uint_fast64_t,
+			decltype(polynomials::to_koopman<1>(
+				std::uint_fast64_t{0x1u}))>::value));
+	
+	// Check return values.
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<1>(0b1u), 0b1u);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<2>(0b1u), 0b10u);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<4>(0b1u), 0b1000u);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<16>(0x8005u), 0xC002u);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<16>(0x1021u), 0x8810u);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<32>(0x04C11DB7uL),
+		0x82608EDBuL);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<32>(0x1EDC6F41uL),
+		0x8F6E37A0uL);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<64>(
+		0x42F0E1EBA9EA3693uLL), 0xA17870F5D4F51B49);
+	BOOST_CHECK_EQUAL(polynomials::to_koopman<64>(
+		0x000000000000001BuLL), 0x800000000000000D);
+	
+	// Verify constexpr.
+	constexpr auto p = polynomials::to_koopman<32>(0x741B8CD7uL);
+	BOOST_CHECK_EQUAL(p, 0xBA0DC66BuL);
 }
 
 BOOST_AUTO_TEST_CASE(from_koopman_polynomial)
