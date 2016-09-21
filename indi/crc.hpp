@@ -268,11 +268,10 @@ constexpr auto reversed(T polynomial) noexcept
     
     auto result = T{};
     
-    // IMPORTANT: The "1" must be cast to T before shifting.
     for (auto bit = std::size_t{0}; bit < Bits; ++bit)
     {
 		result <<= 1;
-		result |= polynomial & T(1u);
+		result |= polynomial & 1u;
 		
 		polynomial >>= 1;
     }

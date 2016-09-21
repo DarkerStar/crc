@@ -33,15 +33,12 @@ all :
 # Test targets ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # "make test" target makes the tests then runs them.
 .PHONY : test
-test : ${testdir}/${testexe}
+test : test-build-only
 	${testdir}/${testexe}
 
 # "make test-build-only" target makes the tests but does not run them.
 .PHONY : test-build-only
-test-build-only : ${testdir}/${testexe}
-
-# The actual test executable, built via recursive make.
-${testdir}/${testexe} :
+test-build-only :
 	@$(MAKE) -C ${testdir} ${testexe}
 
 # Clean target ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
