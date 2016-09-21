@@ -17,13 +17,8 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
+            - libboost-test-dev
       env: INDI_CRC_CC=gcc-6 INDI_CRC_CXX=g++-6
-
-# Also install the Boost.Test package.
-addons:
-  apt:
-    packages:
-      - libboost-test-dev
 
 # Force my compiler choices over Travis's.
 before_script:
