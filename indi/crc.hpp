@@ -17,10 +17,56 @@
 #ifndef INDI_INC_CRC_
 #define INDI_INC_CRC_
 
+#include <climits>
 #include <cstdint>
+#include <type_traits>
 
 namespace indi {
 namespace crc {
+
+namespace detail_ {
+
+//! Create a value with a given number of set bits.
+//! 
+//! This produces a value of type `T` with the `Bits` least significant
+//! bits all set to 1. This is handy for producing masks for `Bits`
+//! bits.
+//! 
+//! Examples:
+//! 
+//!     ones<3, uint_16>;  // produces uint_16(0b111u)
+//!     ones<6, uint_8>;   // produces uint_8(0b11'1111u)
+//!     ones<25, uint_32>; // produces uint_32(0x1ff'ffffuL)
+//!     ones<18, uint_64>; // produces uint_64(0x3'ffffuLL)
+//! 
+//! \requires `Bits` must be greater than zero. `T` must be at least
+//!           `Bits` bits.
+//! 
+//! \tparam Bits  The number of set bits to produce.
+//! \tparam T     The type to produce.
+//! 
+//! \returns  A value of type `T` with the least significant `Bits`
+//!           bits all set to 1.
+template <std::size_t Bits, typename T>
+constexpr auto ones() noexcept
+{
+	static_assert(std::is_integral<T>::value,
+        "CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+        "CRC type must be unsigned");
+	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
+	static_assert(Bits > 0, "0-bit CRCs make no sense");
+    
+    auto val = T{};
+    
+    // IMPORTANT: The "1" must be cast to T before shifting.
+    for (auto bit = std::size_t{0}; bit < Bits; ++bit)
+        val |= (T(0x1u) << bit);
+    
+    return val;
+}
+
+} // namespace detail_
 
 namespace polynomials {
 
