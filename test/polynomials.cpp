@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(crc32_polynomial_values)
 	BOOST_CHECK_EQUAL(polynomials::crc32k, 0x741B8CD7uL);
 	BOOST_CHECK_EQUAL(polynomials::crc32q, 0x814141ABuL);
 	
-	// "CRC32" by default is CRC31-IEEE.
+	// "CRC32" by default is CRC32-IEEE.
 	BOOST_CHECK_EQUAL(polynomials::crc32, polynomials::crc32_ieee);
 }
 
