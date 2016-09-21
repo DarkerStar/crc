@@ -27,7 +27,9 @@ depsdir := .deps
 # Configuration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 exe := crc-test
 
-src := test-main.cpp
+src := test-main.cpp \
+       polynomials.cpp \
+       polynomials-io.cpp
 
 depsdir := .deps
 
