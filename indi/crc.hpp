@@ -460,8 +460,6 @@ auto calculate_next(T, std::uint_fast8_t, InputIterator) ->
 	return T{};
 }
 
-}
-
 //! Calculates the CRC of an 8-bit value given a previous CRC and a
 //! lookup table.
 //! 
@@ -492,8 +490,6 @@ constexpr auto calculate_next(T current, std::uint_fast8_t b,
 	using std::begin;
 	
 	return calculate_next(current, b, begin(table));
-}
-
 }
 
 //! Calculates the CRC of an 8-bit value given a previous CRC and a
