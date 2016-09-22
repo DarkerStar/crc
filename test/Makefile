@@ -28,6 +28,7 @@ depsdir := .deps
 exe := crc-test
 
 src := test-main.cpp \
+       generate-table.cpp \
        polynomials.cpp \
        polynomials-io.cpp
 

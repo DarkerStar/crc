@@ -17,6 +17,7 @@
 #ifndef INDI_INC_CRC_
 #define INDI_INC_CRC_
 
+#include <array>
 #include <climits>
 #include <cstdint>
 #include <type_traits>
@@ -81,19 +82,19 @@ template <std::size_t Bits, typename T>
 constexpr auto ones() noexcept
 {
 	static_assert(std::is_integral<T>::value,
-        "CRC type must be integer");
+		"CRC type must be integer");
 	static_assert(std::is_unsigned<T>::value,
-        "CRC type must be unsigned");
+		"CRC type must be unsigned");
 	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
 	static_assert(Bits > 0, "0-bit CRCs make no sense");
-    
-    auto val = T{};
-    
-    // IMPORTANT: The "1" must be cast to T before shifting.
-    for (auto bit = std::size_t{0}; bit < Bits; ++bit)
-        val |= (T(0x1u) << bit);
-    
-    return val;
+	
+	auto val = T{};
+	
+	// IMPORTANT: The "1" must be cast to T before shifting.
+	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
+		val |= (T(0x1u) << bit);
+	
+	return val;
 }
 
 } // namespace detail_
@@ -171,15 +172,15 @@ template <std::size_t Bits, typename T>
 constexpr auto to_koopman(T polynomial) noexcept
 {
 	static_assert(std::is_integral<T>::value,
-        "CRC type must be integer");
+		"CRC type must be integer");
 	static_assert(std::is_unsigned<T>::value,
-        "CRC type must be unsigned");
+		"CRC type must be unsigned");
 	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
 	static_assert(Bits > 0, "0-bit CRCs make no sense");
-    
-    constexpr auto mask = detail_::ones<Bits, T>();
-    
-    return T(((polynomial >> 1) | (T(0x1u) << (Bits - 1))) & mask);
+	
+	constexpr auto mask = detail_::ones<Bits, T>();
+	
+	return T(((polynomial >> 1) | (T(0x1u) << (Bits - 1))) & mask);
 }
 
 //! Converts a polynomial in Koopman form to standard form.
@@ -208,15 +209,15 @@ template <std::size_t Bits, typename T>
 constexpr auto from_koopman(T polynomial) noexcept
 {
 	static_assert(std::is_integral<T>::value,
-        "CRC type must be integer");
+		"CRC type must be integer");
 	static_assert(std::is_unsigned<T>::value,
-        "CRC type must be unsigned");
+		"CRC type must be unsigned");
 	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
 	static_assert(Bits > 0, "0-bit CRCs make no sense");
-    
-    constexpr auto mask = detail_::ones<Bits, T>();
-    
-    return T(((polynomial << 1) | T(0x1u)) & mask);
+	
+	constexpr auto mask = detail_::ones<Bits, T>();
+	
+	return T(((polynomial << 1) | T(0x1u)) & mask);
 }
 
 //! Converts a polynomial to reversed form.
@@ -260,26 +261,125 @@ template <std::size_t Bits, typename T>
 constexpr auto reversed(T polynomial) noexcept
 {
 	static_assert(std::is_integral<T>::value,
-        "CRC type must be integer");
+		"CRC type must be integer");
 	static_assert(std::is_unsigned<T>::value,
-        "CRC type must be unsigned");
+		"CRC type must be unsigned");
 	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
 	static_assert(Bits > 0, "0-bit CRCs make no sense");
-    
-    auto result = T{};
-    
-    for (auto bit = std::size_t{0}; bit < Bits; ++bit)
-    {
+	
+	auto result = T{};
+	
+	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
+	{
 		result <<= 1;
 		result |= polynomial & 1u;
 		
 		polynomial >>= 1;
-    }
-    
-    return result;
+	}
+	
+	return result;
 }
 
 } // namespace polynomials
+
+//! Generates a 256-element lookup table for CRC calculations.
+//! 
+//! The lookup table can be used in any of the CRC calculation
+//! functions.
+//! 
+//! \requires `Bits` must be greater than zero. `T` must be at least
+//!           `Bits` bits in size.
+//! 
+//! \tparam Bits  The CRC bit-size.
+//! 
+//! \tparam T The type of the encoded polynomial value.
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! \returns An std::array<T, 256> with the computed CRCs of every
+//!          value from 0 to 255, using the given polynomial.
+template <std::size_t Bits, typename T>
+constexpr auto generate_table(T polynomial) noexcept
+{
+	static_assert(std::is_integral<T>::value,
+		"CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+		"CRC type must be unsigned");
+	static_assert(Bits <= (sizeof(T) * CHAR_BIT), "T is too small");
+	static_assert(Bits > 0, "0-bit CRCs make no sense");
+	
+	auto const reversed_polynomial =
+		polynomials::reversed<Bits>(polynomial);
+	
+	auto table = std::array<T, 256>{};
+	
+	for (auto n = std::size_t{0}; n < std::size_t{256}; ++n)
+	{
+		// Start with the value set as the index.
+		table[n] = T(n);
+		
+		// For each bit...
+		for (auto bit = 0; bit < 8; ++bit)
+		{
+			// ... if the bit is set, XOR the value with the reversed
+			// polynomial.
+			if (table[n] & 1)
+			{
+				table[n] >>= 1;
+				table[n] ^= reversed_polynomial;
+			}
+			// ... if the bit is not set, do nothing.
+			else
+			{
+				table[n] >>= 1;
+			}
+		}
+	}
+	
+	return table;
+}
+
+//! Generates a 256-element lookup table for CRC16 calculations.
+//! 
+//! This is a convenience method which just calls:
+//! 
+//!     generate_table<16>(polynomials::crc16)
+//! 
+//! \requires `Bits` is 16.
+//! 
+//! \tparam Bits  The CRC bit-size (must be 16).
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! \returns An std::array<std::uint_fast16_t, 256> with the computed
+//!          CRC16s of every value from 0 to 255.
+template <std::size_t Bits>
+constexpr auto generate_table() noexcept ->
+	std::enable_if_t<Bits == 16, std::array<std::uint_fast16_t, 256>>
+{
+	return generate_table<Bits>(polynomials::crc16);
+}
+
+//! Generates a 256-element lookup table for CRC32 calculations.
+//! 
+//! This is a convenience method which just calls:
+//! 
+//!     generate_table<16>(polynomials::crc32)
+//! 
+//! \requires `Bits` is 32.
+//! 
+//! \tparam Bits  The CRC bit-size (must be 32).
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! \returns An std::array<std::uint_fast32_t, 256> with the computed
+//!          CRC32s of every value from 0 to 255.
+template <std::size_t Bits>
+constexpr auto generate_table() noexcept ->
+	std::enable_if_t<Bits == 32, std::array<std::uint_fast32_t, 256>>
+{
+	return generate_table<Bits>(polynomials::crc32);
+}
 
 } // namespace crc
 } // namespace indi

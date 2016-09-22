@@ -18,7 +18,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `indi/crc-io.hpp` file: I/O and string formatting routines for CRCs.
 - `test/Makefile` file: test makefile, which builds the tests.
 - `test/test-main.cpp` file: main source code file for the tests.
+- `test/generate-table.cpp` file: tests for generating lookup tables.
 - `test/polynomials.cpp` file: tests for polynomial values and
   functions.
 - `test/polynomials-id.cpp` file: tests for polynomial I/O and string
   formatting.
+- `test/data/table-crc16` file: test lookup table values for CRC16.
+- `test/data/table-crc16-ccitt` file: test lookup table values for
+  CRC16-CCITT.
+- `test/data/table-crc32` file: test lookup table values for CRC32.
+- `test/data/table-crc32c` file: test lookup table values for CRC32c.
+- `test/data/table-crc64-ecma` file: test lookup table values for
+  CRC64-ECMA.

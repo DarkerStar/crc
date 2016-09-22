@@ -34,7 +34,7 @@ all :
 # "make test" target makes the tests then runs them.
 .PHONY : test
 test : test-build-only
-	${testdir}/${testexe}
+	cd -- ${testdir} && ./${testexe}
 
 # "make test-build-only" target makes the tests but does not run them.
 .PHONY : test-build-only
