@@ -417,7 +417,12 @@ constexpr auto calculate_next(T current, std::uint_fast8_t b,
 				RandomAccessIterator>::value,
 		T>
 {
-	return T{};
+	static_assert(std::is_integral<T>::value,
+		"CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+		"CRC type must be unsigned");
+	
+	return T(table_begin[(current ^ b) & 0xffu] ^ (current >> 8));
 }
 
 template <typename T, typename InputIterator>

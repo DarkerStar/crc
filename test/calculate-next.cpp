@@ -19,6 +19,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <array>
 #include <deque>
 #include <vector>
@@ -218,6 +219,76 @@ BOOST_AUTO_TEST_CASE(calculate_next_range_signature)
         decltype(indi::crc::calculate_next(std::uint_least64_t{},
             uchar_val, u64f_dtable.rbegin()))
         >::value));
+}
+
+BOOST_AUTO_TEST_CASE(calculate_next_crc16)
+{
+    auto const table = indi::crc::generate_table<16>();
+    unsigned int ctable[256];
+    std::copy_n(table.begin(), 256, ctable);
+    
+    auto prev = 0u;
+    auto next = indi::crc::calculate_next(prev, 't', table.begin());
+    BOOST_CHECK_EQUAL(next, 0x2700u);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 'e', table);
+    BOOST_CHECK_EQUAL(next, 0x2be7u);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 's', ctable);
+    BOOST_CHECK_EQUAL(next, 0xaf2au);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 't', table.begin());
+    BOOST_CHECK_EQUAL(next, 0xf82eu);
+}
+
+BOOST_AUTO_TEST_CASE(calculate_next_crc32)
+{
+    auto const table = indi::crc::generate_table<32>();
+    unsigned long ctable[256];
+    std::copy_n(table.begin(), 256, ctable);
+    
+    auto prev = 0uL;
+    auto next = indi::crc::calculate_next(prev, 't', table.begin());
+    BOOST_CHECK_EQUAL(next, 0x5768b525uL);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 'e', table);
+    BOOST_CHECK_EQUAL(next, 0x768b2925uL);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 's', ctable);
+    BOOST_CHECK_EQUAL(next, 0x827e7fe8uL);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 't', table.begin());
+    BOOST_CHECK_EQUAL(next, 0xf93ba110uL);
+}
+
+BOOST_AUTO_TEST_CASE(calculate_next_crc64_ecma)
+{
+    auto const table = indi::crc::generate_table<64>(
+        indi::crc::polynomials::crc64_ecma);
+    unsigned long long ctable[256];
+    std::copy_n(table.begin(), 256, ctable);
+    
+    auto prev = 0uLL;
+    auto next = indi::crc::calculate_next(prev, 't', table.begin());
+    BOOST_CHECK_EQUAL(next, 0x99ca0b06e7197349uLL);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 'e', table);
+    BOOST_CHECK_EQUAL(next, 0x77dfccf6a41037b4uLL);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 's', ctable);
+    BOOST_CHECK_EQUAL(next, 0x91d71afe9e8839d3uLL);
+    
+    prev = next;
+    next = indi::crc::calculate_next(prev, 't', table.begin());
+    BOOST_CHECK_EQUAL(next, 0x0eb07b92df17eaeeuLL);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
