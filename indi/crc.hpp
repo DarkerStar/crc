@@ -20,6 +20,7 @@
 #include <array>
 #include <climits>
 #include <cstdint>
+#include <iterator>
 #include <type_traits>
 
 namespace indi {
@@ -96,6 +97,32 @@ constexpr auto ones() noexcept
 	
 	return val;
 }
+
+template <typename T, typename = void>
+struct is_input_iterator : std::false_type{};
+
+template <typename T>
+struct is_input_iterator<T,
+        typename std::enable_if<
+            std::is_base_of<
+                std::input_iterator_tag,
+                typename std::iterator_traits<T>::
+                    iterator_category>::value
+            >::type> :
+    std::true_type{};
+
+template <typename T, typename = void>
+struct is_random_access_iterator : std::false_type{};
+
+template <typename T>
+struct is_random_access_iterator<T,
+        typename std::enable_if<
+            std::is_base_of<
+                std::random_access_iterator_tag,
+                typename std::iterator_traits<T>::
+                    iterator_category>::value
+            >::type> :
+    std::true_type{};
 
 } // namespace detail_
 
@@ -379,6 +406,56 @@ constexpr auto generate_table() noexcept ->
 	std::enable_if_t<Bits == 32, std::array<std::uint_fast32_t, 256>>
 {
 	return generate_table<Bits>(polynomials::crc32);
+}
+
+template <typename T, typename RandomAccessIterator>
+constexpr auto calculate_next(T current, std::uint_fast8_t b,
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<
+				RandomAccessIterator>::value,
+		T>
+{
+	return T{};
+}
+
+template <typename T, typename InputIterator>
+auto calculate_next(T, std::uint_fast8_t, InputIterator) ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			!detail_::is_random_access_iterator<InputIterator>::
+			value,
+		T>
+{
+	static_assert(detail_::is_random_access_iterator<InputIterator>::
+			value,
+		"iterator argument is not a random access iterator");
+	
+	// This overload only exists to produce a better error message
+	// if someone attempts to use a non-random-access iterator as the
+	// table iterator. It will never actually return anything.
+	return T{};
+}
+
+template <typename T, typename Table>
+constexpr auto calculate_next(T current, std::uint_fast8_t b,
+		Table const& table) noexcept ->
+	std::enable_if_t<!detail_::is_input_iterator<Table>::value, T>
+{
+	using std::begin;
+	
+	return calculate_next(current, b, begin(table));
+}
+
+template <typename T, typename U, std::size_t N>
+constexpr auto calculate_next(T current, std::uint_fast8_t b,
+		const U(&table)[N]) noexcept
+{
+	static_assert(N >= 256,
+		"CRC lookup table must have at least 256 items");
+	
+	return calculate_next(current, b, table + 0);
 }
 
 } // namespace crc
