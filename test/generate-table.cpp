@@ -34,7 +34,7 @@ auto load_crc_table(std::string file)
 	auto table = std::vector<unsigned long long>{};
 	table.reserve(256);
 	
-	auto in = std::ifstream{"data/" + file};
+	auto in = std::ifstream{"data/table-" + file};
 	
 	auto line = std::string{};
 	while (std::getline(in, line))
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(generate_table_crc5_epc_values)
 
 BOOST_AUTO_TEST_CASE(generate_table_crc16_values)
 {
-	auto const expected = load_crc_table("table-crc16");
+	auto const expected = load_crc_table("crc16");
 	
 	auto result = indi::crc::generate_table<16>(
 		indi::crc::polynomials::crc16);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(generate_table_crc16_values)
 
 BOOST_AUTO_TEST_CASE(generate_table_crc16_ccitt_values)
 {
-	auto const expected = load_crc_table("table-crc16-ccitt");
+	auto const expected = load_crc_table("crc16-ccitt");
 	
 	auto result = indi::crc::generate_table<16>(
 		indi::crc::polynomials::crc16_ccitt);
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(generate_table_crc16_ccitt_values)
 
 BOOST_AUTO_TEST_CASE(generate_table_crc32_values)
 {
-	auto const expected = load_crc_table("table-crc32");
+	auto const expected = load_crc_table("crc32");
 	
 	auto result = indi::crc::generate_table<32>(
 		indi::crc::polynomials::crc32);
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(generate_table_crc32_values)
 
 BOOST_AUTO_TEST_CASE(generate_table_crc32c_values)
 {
-	auto const expected = load_crc_table("table-crc32c");
+	auto const expected = load_crc_table("crc32c");
 	
 	auto result = indi::crc::generate_table<32>(
 		indi::crc::polynomials::crc32c);
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(generate_table_crc32c_values)
 
 BOOST_AUTO_TEST_CASE(generate_table_crc64_ecma_values)
 {
-	auto const expected = load_crc_table("table-crc64-ecma");
+	auto const expected = load_crc_table("crc64-ecma");
 	
 	auto result = indi::crc::generate_table<64>(
 		indi::crc::polynomials::crc64_ecma);

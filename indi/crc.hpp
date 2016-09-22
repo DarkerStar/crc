@@ -282,6 +282,22 @@ constexpr auto reversed(T polynomial) noexcept
 
 } // namespace polynomials
 
+//! Generates a 256-element lookup table for CRC calculations.
+//! 
+//! The lookup table can be used in any of the CRC calculation
+//! functions.
+//! 
+//! \requires `Bits` must be greater than zero. `T` must be at least
+//!           `Bits` bits in size.
+//! 
+//! \tparam Bits  The CRC bit-size.
+//! 
+//! \tparam T The type of the encoded polynomial value.
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! \returns An std::array<T, 256> with the computed CRCs of every
+//!          value from 0 to 255, using the given polynomial.
 template <std::size_t Bits, typename T>
 constexpr auto generate_table(T polynomial) noexcept
 {
@@ -323,6 +339,20 @@ constexpr auto generate_table(T polynomial) noexcept
 	return table;
 }
 
+//! Generates a 256-element lookup table for CRC16 calculations.
+//! 
+//! This is a convenience method which just calls:
+//! 
+//!     generate_table<16>(polynomials::crc16)
+//! 
+//! \requires `Bits` is 16.
+//! 
+//! \tparam Bits  The CRC bit-size (must be 16).
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! \returns An std::array<std::uint_fast16_t, 256> with the computed
+//!          CRC16s of every value from 0 to 255.
 template <std::size_t Bits>
 constexpr auto generate_table() noexcept ->
 	std::enable_if_t<Bits == 16, std::array<std::uint_fast16_t, 256>>
@@ -330,6 +360,20 @@ constexpr auto generate_table() noexcept ->
 	return generate_table<Bits>(polynomials::crc16);
 }
 
+//! Generates a 256-element lookup table for CRC32 calculations.
+//! 
+//! This is a convenience method which just calls:
+//! 
+//!     generate_table<16>(polynomials::crc32)
+//! 
+//! \requires `Bits` is 32.
+//! 
+//! \tparam Bits  The CRC bit-size (must be 32).
+//! 
+//! \param polynomial  The encoded polynomial value.
+//! 
+//! \returns An std::array<std::uint_fast32_t, 256> with the computed
+//!          CRC32s of every value from 0 to 255.
 template <std::size_t Bits>
 constexpr auto generate_table() noexcept ->
 	std::enable_if_t<Bits == 32, std::array<std::uint_fast32_t, 256>>
