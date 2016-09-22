@@ -20,6 +20,7 @@
 #include <array>
 #include <climits>
 #include <cstdint>
+#include <iterator>
 #include <type_traits>
 
 namespace indi {
@@ -96,6 +97,32 @@ constexpr auto ones() noexcept
 	
 	return val;
 }
+
+template <typename T, typename = void>
+struct is_input_iterator : std::false_type{};
+
+template <typename T>
+struct is_input_iterator<T,
+        typename std::enable_if<
+            std::is_base_of<
+                std::input_iterator_tag,
+                typename std::iterator_traits<T>::
+                    iterator_category>::value
+            >::type> :
+    std::true_type{};
+
+template <typename T, typename = void>
+struct is_random_access_iterator : std::false_type{};
+
+template <typename T>
+struct is_random_access_iterator<T,
+        typename std::enable_if<
+            std::is_base_of<
+                std::random_access_iterator_tag,
+                typename std::iterator_traits<T>::
+                    iterator_category>::value
+            >::type> :
+    std::true_type{};
 
 } // namespace detail_
 
@@ -379,6 +406,121 @@ constexpr auto generate_table() noexcept ->
 	std::enable_if_t<Bits == 32, std::array<std::uint_fast32_t, 256>>
 {
 	return generate_table<Bits>(polynomials::crc32);
+}
+
+//! Calculates the CRC of an 8-bit value given a previous CRC and a
+//! lookup table.
+//! 
+//! \requires `T` is an unsigned integral type.
+//! \requires `RandomAccessIterator` is a random access iterator to
+//!     a sequence of values convertible to `T` that is at least 256
+//!     items in size.
+//! 
+//! \tparam T  The CRC type.
+//! \tparam RandomAccessIterator  An iterator to the beginning of a
+//!     lookup table of precomputed CRC values for 0 to 255.
+//! 
+//! \param current  The CRC of the preceding input sequence.
+//! \param b  The next 8-bit value in the input sequence.
+//! \param table_begin  An iterator to a sequence of precomputed CRCs.
+//! 
+//! \returns The computed CRC.
+template <typename T, typename RandomAccessIterator>
+constexpr auto calculate_next(T current, std::uint_fast8_t b,
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<
+				RandomAccessIterator>::value,
+		T>
+{
+	static_assert(std::is_integral<T>::value,
+		"CRC type must be integer");
+	static_assert(std::is_unsigned<T>::value,
+		"CRC type must be unsigned");
+	
+	return T(table_begin[(current ^ b) & 0xffu] ^ (current >> 8));
+}
+
+// This overload only exists to produce a better error message
+// if someone attempts to use a non-random-access iterator as the
+// table iterator. It will never actually return anything.
+template <typename T, typename InputIterator>
+auto calculate_next(T, std::uint_fast8_t, InputIterator) ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			!detail_::is_random_access_iterator<InputIterator>::
+			value,
+		T>
+{
+	static_assert(detail_::is_random_access_iterator<InputIterator>::
+			value,
+		"iterator argument is not a random access iterator");
+	
+	return T{};
+}
+
+//! Calculates the CRC of an 8-bit value given a previous CRC and a
+//! lookup table.
+//! 
+//! This is a convenience method which just calls:
+//! 
+//!     using std::begin;
+//!     calculate_next(current, b, begin(table));
+//! 
+//! \requires `T` is an unsigned integral type.
+//! \requires `RandomAccessIterator` is a random access iterator to
+//!     a sequence of values convertible to `T` that is at least 256
+//!     items in size.
+//! 
+//! \tparam T  The CRC type.
+//! \tparam RandomAccessIterator  An iterator to the beginning of a
+//!     lookup table of precomputed CRC values for 0 to 255.
+//! 
+//! \param current  The CRC of the preceding input sequence.
+//! \param b  The next 8-bit value in the input sequence.
+//! \param table_begin  An iterator to a sequence of precomputed CRCs.
+//! 
+//! \returns The computed CRC.
+template <typename T, typename Table>
+constexpr auto calculate_next(T current, std::uint_fast8_t b,
+		Table const& table) noexcept ->
+	std::enable_if_t<!detail_::is_input_iterator<Table>::value, T>
+{
+	using std::begin;
+	
+	return calculate_next(current, b, begin(table));
+}
+
+//! Calculates the CRC of an 8-bit value given a previous CRC and a
+//! lookup table.
+//! 
+//! This is a convenience method which just calls:
+//! 
+//!     calculate_next(current, b, table + 0)
+//! 
+//! \requires `T` is an unsigned integral type.
+//! \requires `RandomAccessIterator` is a random access iterator to
+//!     a sequence of values convertible to `T` that is at least 256
+//!     items in size.
+//! 
+//! \tparam T  The CRC type.
+//! \tparam RandomAccessIterator  An iterator to the beginning of a
+//!     lookup table of precomputed CRC values for 0 to 255.
+//! 
+//! \param current  The CRC of the preceding input sequence.
+//! \param b  The next 8-bit value in the input sequence.
+//! \param table_begin  An iterator to a sequence of precomputed CRCs.
+//! 
+//! \returns The computed CRC.
+template <typename T, typename U, std::size_t N>
+constexpr auto calculate_next(T current, std::uint_fast8_t b,
+		const U(&table)[N]) noexcept
+{
+	static_assert(N >= 256,
+		"CRC lookup table must have at least 256 items");
+	
+	return calculate_next(current, b, table + 0);
 }
 
 } // namespace crc
