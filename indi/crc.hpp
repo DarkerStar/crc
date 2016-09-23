@@ -523,6 +523,73 @@ constexpr auto calculate_next(T current, std::uint_fast8_t b,
 	return calculate_next(current, b, table + 0);
 }
 
+// calculate_raw ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		T poly) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			std::is_integral<T>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel, typename RandomAccessIterator>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			!std::is_integral<T>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel, typename Table>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		Table const& table) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			!std::is_integral<T>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		const U(&table)[N]) noexcept
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
+		noexcept ->
+	std::enable_if_t<Bits == 16, T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
+		noexcept ->
+	std::enable_if_t<Bits == 32, T>
+{
+	return init;
+}
+
 } // namespace crc
 } // namespace indi
 
