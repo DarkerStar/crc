@@ -576,7 +576,9 @@ template <std::size_t Bits, typename T, typename InputIterator,
 	typename Sentinel>
 constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
 		noexcept ->
-	std::enable_if_t<Bits == 16, T>
+	std::enable_if_t<Bits == 16 &&
+			detail_::is_input_iterator<InputIterator>::value,
+		T>
 {
 	return init;
 }
@@ -585,7 +587,9 @@ template <std::size_t Bits, typename T, typename InputIterator,
 	typename Sentinel>
 constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
 		noexcept ->
-	std::enable_if_t<Bits == 32, T>
+	std::enable_if_t<Bits == 32 &&
+			detail_::is_input_iterator<InputIterator>::value,
+		T>
 {
 	return init;
 }
