@@ -303,7 +303,6 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_signature_3)
 BOOST_AUTO_TEST_CASE(calculate_raw_range_signature_4)
 {
     unsigned char uc_carray[1] = {};
-    auto ucptr = static_cast<unsigned char const*>(nullptr);
     
     BOOST_CHECK((std::is_same<
 		unsigned int,
@@ -329,7 +328,6 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_signature_4)
 BOOST_AUTO_TEST_CASE(calculate_raw_range_signature_5)
 {
     unsigned char uc_carray[1] = {};
-    auto ucptr = static_cast<unsigned char const*>(nullptr);
     
     BOOST_CHECK((std::is_same<
 		unsigned int,
@@ -344,7 +342,7 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_signature_5)
 }
 
 // Testing with polynomial argument.
-BOOST_AUTO_TEST_CASE(calculate_raw_range_poly)
+BOOST_AUTO_TEST_CASE(calculate_raw_poly)
 {
     using std::begin;
     using std::end;
@@ -369,6 +367,17 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_poly)
         0x1234567890ABCDEFuLL, cdata, 0x42F0E1EBA9EA3693uLL),
         0x05D44A5662E09ED0uLL);
     
+    auto const vdata = std::forward_list<unsigned char>{1, 2, 3, 4};
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<5>(0u, vdata, 0x09u),
+        0x02u);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<5>(0x12u, vdata,
+        0x09u), 0x0Bu);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(0uLL, vdata,
+        0x42F0E1EBA9EA3693uLL), 0xE51201F91A06376EuLL);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(
+        0x1234567890ABCDEFuLL, vdata, 0x42F0E1EBA9EA3693uLL),
+        0x05D44A5662E09ED0uLL);
+    
     auto iss1 = std::istringstream{"116 101 115 116"};
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<32>(0uL,
         std::istream_iterator<unsigned int>{iss1},
@@ -382,7 +391,7 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_poly)
 }
 
 // Testing with lookup table iterator argument.
-BOOST_AUTO_TEST_CASE(calculate_raw_range_tableiter)
+BOOST_AUTO_TEST_CASE(calculate_raw_tableiter)
 {
     using std::begin;
     using std::end;
@@ -416,6 +425,18 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_tableiter)
         0x1234567890ABCDEFuLL, cdata, begin(dtable)),
         0xC5233D1A32345678uLL);
     
+    auto const fldata = std::forward_list<unsigned char>{1, 2, 3, 4};
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0u, fldata,
+        &atable[0]),
+        0xC54Fu);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x1234u, fldata,
+        &atable[0]), 0xCB7Cu);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(0uLL, fldata,
+        begin(dtable)), 0x06C2D361B0000000uLL);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(
+        0x1234567890ABCDEFuLL, fldata, begin(dtable)),
+        0xC5233D1A32345678uLL);
+    
     auto iss1 = std::istringstream{"116 101 115 116"};
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0u,
         std::istream_iterator<unsigned int>{iss1},
@@ -429,7 +450,7 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_tableiter)
 }
 
 // Testing with lookup table range argument.
-BOOST_AUTO_TEST_CASE(calculate_raw_range_table)
+BOOST_AUTO_TEST_CASE(calculate_raw_table)
 {
     using std::begin;
     using std::end;
@@ -440,11 +461,11 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_table)
     unsigned char cdata[] = {1, 2, 3, 4};
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0u, begin(cdata),
         end(cdata), atable), 0xC54Fu);
-    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x12u,
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x1234u,
         begin(cdata), end(cdata), atable), 0xCB7Cu);
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0u, cdata,
         atable), 0xC54Fu);
-    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x12u, cdata,
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x1234u, cdata,
         atable), 0xCB7Cu);
     
     auto const crc64_table = indi::crc::generate_table<64>(
@@ -462,13 +483,25 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_table)
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(
         0x1234567890ABCDEFuLL, cdata, dtable), 0xC5233D1A32345678uLL);
     
+    auto const fldata = std::forward_list<unsigned char>{1, 2, 3, 4};
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0u, fldata,
+        atable),
+        0xC54Fu);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x1234u, fldata,
+        atable), 0xCB7Cu);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(0uLL, fldata,
+        dtable), 0x06C2D361B0000000uLL);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<64>(
+        0x1234567890ABCDEFuLL, fldata, dtable),
+        0xC5233D1A32345678uLL);
+    
     auto iss1 = std::istringstream{"116 101 115 116"};
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0uL,
         std::istream_iterator<unsigned int>{iss1},
         std::istream_iterator<unsigned int>{},
         atable), 0xFB56u);
     auto iss2 = std::istringstream{"116 101 115 116"};
-    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x12345678uL,
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x1234u,
         std::istream_iterator<unsigned int>{iss2},
         std::istream_iterator<unsigned int>{},
         atable), 0xF565u);
@@ -484,6 +517,57 @@ BOOST_AUTO_TEST_CASE(calculate_raw_range_table)
         ctable), 0x977824D1uL);
     BOOST_CHECK_EQUAL(indi::crc::calculate_raw<16>(0x12345678uL, cdata,
         ctable), 0x19517C1FuL);
+}
+
+// Testing with lookup table range argument, where table is a C array.
+BOOST_AUTO_TEST_CASE(calculate_raw_arraytable)
+{
+	unsigned char const table[256] = {
+		0x00u, 0x0Fu, 0x1Eu, 0x11u, 0x19u, 0x16u, 0x07u, 0x08u,
+		0x17u, 0x18u, 0x09u, 0x06u, 0x0Eu, 0x01u, 0x10u, 0x1Fu,
+		0x0Bu, 0x04u, 0x15u, 0x1Au, 0x12u, 0x1Du, 0x0Cu, 0x03u,
+		0x1Cu, 0x13u, 0x02u, 0x0Du, 0x05u, 0x0Au, 0x1Bu, 0x14u,
+		0x16u, 0x19u, 0x08u, 0x07u, 0x0Fu, 0x00u, 0x11u, 0x1Eu,
+		0x01u, 0x0Eu, 0x1Fu, 0x10u, 0x18u, 0x17u, 0x06u, 0x09u,
+		0x1Du, 0x12u, 0x03u, 0x0Cu, 0x04u, 0x0Bu, 0x1Au, 0x15u,
+		0x0Au, 0x05u, 0x14u, 0x1Bu, 0x13u, 0x1Cu, 0x0Du, 0x02u,
+		0x09u, 0x06u, 0x17u, 0x18u, 0x10u, 0x1Fu, 0x0Eu, 0x01u,
+		0x1Eu, 0x11u, 0x00u, 0x0Fu, 0x07u, 0x08u, 0x19u, 0x16u,
+		0x02u, 0x0Du, 0x1Cu, 0x13u, 0x1Bu, 0x14u, 0x05u, 0x0Au,
+		0x15u, 0x1Au, 0x0Bu, 0x04u, 0x0Cu, 0x03u, 0x12u, 0x1Du,
+		0x1Fu, 0x10u, 0x01u, 0x0Eu, 0x06u, 0x09u, 0x18u, 0x17u,
+		0x08u, 0x07u, 0x16u, 0x19u, 0x11u, 0x1Eu, 0x0Fu, 0x00u,
+		0x14u, 0x1Bu, 0x0Au, 0x05u, 0x0Du, 0x02u, 0x13u, 0x1Cu,
+		0x03u, 0x0Cu, 0x1Du, 0x12u, 0x1Au, 0x15u, 0x04u, 0x0Bu,
+		0x12u, 0x1Du, 0x0Cu, 0x03u, 0x0Bu, 0x04u, 0x15u, 0x1Au,
+		0x05u, 0x0Au, 0x1Bu, 0x14u, 0x1Cu, 0x13u, 0x02u, 0x0Du,
+		0x19u, 0x16u, 0x07u, 0x08u, 0x00u, 0x0Fu, 0x1Eu, 0x11u,
+		0x0Eu, 0x01u, 0x10u, 0x1Fu, 0x17u, 0x18u, 0x09u, 0x06u,
+		0x04u, 0x0Bu, 0x1Au, 0x15u, 0x1Du, 0x12u, 0x03u, 0x0Cu,
+		0x13u, 0x1Cu, 0x0Du, 0x02u, 0x0Au, 0x05u, 0x14u, 0x1Bu,
+		0x0Fu, 0x00u, 0x11u, 0x1Eu, 0x16u, 0x19u, 0x08u, 0x07u,
+		0x18u, 0x17u, 0x06u, 0x09u, 0x01u, 0x0Eu, 0x1Fu, 0x10u,
+		0x1Bu, 0x14u, 0x05u, 0x0Au, 0x02u, 0x0Du, 0x1Cu, 0x13u,
+		0x0Cu, 0x03u, 0x12u, 0x1Du, 0x15u, 0x1Au, 0x0Bu, 0x04u,
+		0x10u, 0x1Fu, 0x0Eu, 0x01u, 0x09u, 0x06u, 0x17u, 0x18u,
+		0x07u, 0x08u, 0x19u, 0x16u, 0x1Eu, 0x11u, 0x00u, 0x0Fu,
+		0x0Du, 0x02u, 0x13u, 0x1Cu, 0x14u, 0x1Bu, 0x0Au, 0x05u,
+		0x1Au, 0x15u, 0x04u, 0x0Bu, 0x03u, 0x0Cu, 0x1Du, 0x12u,
+		0x06u, 0x09u, 0x18u, 0x17u, 0x1Fu, 0x10u, 0x01u, 0x0Eu,
+		0x11u, 0x1Eu, 0x0Fu, 0x00u, 0x08u, 0x07u, 0x16u, 0x19u
+	};
+    
+    unsigned char cdata[] = {1, 2, 3, 4};
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<5>(0x00u, cdata, table),
+        0x02u);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<5>(0x12u, cdata, table),
+        0x0bu);
+    
+    auto const fldata = std::forward_list<unsigned char>{5, 6, 7, 8};
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<5>(0x00u, fldata, table),
+        0x07u);
+    BOOST_CHECK_EQUAL(indi::crc::calculate_raw<5>(0x13u, fldata, table),
+        0x1Cu);
 }
 
 // Testing CRC16.
