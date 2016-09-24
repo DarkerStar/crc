@@ -21,6 +21,7 @@
 #include <climits>
 #include <cstdint>
 #include <iterator>
+#include <numeric>
 #include <type_traits>
 
 namespace indi {
@@ -521,6 +522,240 @@ constexpr auto calculate_next(T current, std::uint_fast8_t b,
 		"CRC lookup table must have at least 256 items");
 	
 	return calculate_next(current, b, table + 0);
+}
+
+// calculate_raw ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// calculate_raw<16>(T init, InIt first, Sen last)
+// calculate_raw<32>(T init, InIt first, Sen last)
+// calculate_raw<Bits>(T init, InIt first, Sen last, T poly)
+// calculate_raw<Bits>(T init, InIt first, Sen last, RAIt table_first)
+// calculate_raw<Bits>(T init, InIt first, Sen last, Table const& table)
+// calculate_raw<16>(T init, Range const& r)
+// calculate_raw<32>(T init, Range const& r)
+// calculate_raw<Bits>(T init, Range const& r, T poly)
+// calculate_raw<Bits>(T init, Range const& r, RAIt table_first)
+// calculate_raw<Bits>(T init, Range const& r, Table const& table)
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel, typename RandomAccessIterator>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	auto calculator = [&table_begin](auto last, auto b)
+		{ return calculate_next(last, b, table_begin); };
+	return std::accumulate(first, last, init, calculator);
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel, typename Table>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		Table const& table) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	auto calculator = [&table](auto last, auto b)
+		{ return calculate_next(last, b, table); };
+	return std::accumulate(first, last, init, calculator);
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		const U(&table)[N]) noexcept
+{
+	auto calculator = [&table](auto last, auto b)
+		{ return calculate_next(last, b, table); };
+	return std::accumulate(first, last, init, calculator);
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
+		T poly) noexcept ->
+	std::enable_if_t<
+		detail_::is_input_iterator<InputIterator>::value &&
+			std::is_integral<T>::value,
+		T>
+{
+	auto const table = generate_table<Bits>(poly);
+	return calculate_raw<Bits>(init, first, last, table);
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
+		noexcept ->
+	std::enable_if_t<Bits == 16 &&
+			detail_::is_input_iterator<InputIterator>::value,
+		T>
+{
+	constexpr auto poly = static_cast<T>(polynomials::crc16);
+	return calculate_raw<16>(init, first, last, poly);
+}
+
+template <std::size_t Bits, typename T, typename InputIterator,
+	typename Sentinel>
+constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
+		noexcept ->
+	std::enable_if_t<Bits == 32 &&
+			detail_::is_input_iterator<InputIterator>::value,
+		T>
+{
+	constexpr auto poly = static_cast<T>(polynomials::crc32);
+	return calculate_raw<32>(init, first, last, poly);
+}
+
+template <std::size_t Bits, typename T, typename Range>
+constexpr auto calculate_raw(T init, Range const& range, T poly)
+		noexcept ->
+	std::enable_if_t<
+		!detail_::is_input_iterator<Range>::value &&
+			std::is_integral<T>::value,
+		T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range), poly);
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, const U(&range)[N], T poly)
+		noexcept ->
+	std::enable_if_t<std::is_integral<T>::value, T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range), poly);
+}
+
+template <std::size_t Bits, typename T, typename Range,
+	typename RandomAccessIterator>
+constexpr auto calculate_raw(T init, Range const& range,
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		!detail_::is_input_iterator<Range>::value &&
+			!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range),
+		table_begin);
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N,
+	typename RandomAccessIterator>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range),
+		table_begin);
+}
+
+template <std::size_t Bits, typename T, typename Range, typename Table>
+constexpr auto calculate_raw(T init, Range const& range,
+		Table const& table) noexcept ->
+	std::enable_if_t<
+		!detail_::is_input_iterator<Range>::value &&
+			!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range),
+		table);
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N,
+	typename Table>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		Table const& table) noexcept ->
+	std::enable_if_t<
+		!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range),
+		table);
+}
+
+template <std::size_t Bits, typename T, typename Range,
+	typename V, std::size_t M>
+constexpr auto calculate_raw(T init, Range const& range,
+		const V(&table)[M]) noexcept ->
+	std::enable_if_t<!detail_::is_input_iterator<Range>::value, T>
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range), table);
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N,
+	typename V, std::size_t M>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		const V(&table)[M]) noexcept
+{
+	using std::begin;
+	using std::end;
+	return calculate_raw<Bits>(init, begin(range), end(range), table);
+}
+
+template <std::size_t Bits, typename T, typename Range>
+constexpr auto calculate_raw(T init, Range const& range) noexcept ->
+	std::enable_if_t<Bits == 16 &&
+			!detail_::is_input_iterator<Range>::value,
+		T>
+{
+	constexpr auto poly = static_cast<T>(polynomials::crc16);
+	return calculate_raw<16>(init, range, poly);
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, const U(&range)[N]) noexcept ->
+	std::enable_if_t<Bits == 16, T>
+{
+	constexpr auto poly = static_cast<T>(polynomials::crc16);
+	return calculate_raw<16>(init, range, poly);
+}
+
+template <std::size_t Bits, typename T, typename Range>
+constexpr auto calculate_raw(T init, Range const& range) noexcept ->
+	std::enable_if_t<Bits == 32 &&
+			!detail_::is_input_iterator<Range>::value,
+		T>
+{
+	constexpr auto poly = static_cast<T>(polynomials::crc32);
+	return calculate_raw<32>(init, range, poly);
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, const U(&range)[N]) noexcept ->
+	std::enable_if_t<Bits == 32, T>
+{
+	constexpr auto poly = static_cast<T>(polynomials::crc32);
+	return calculate_raw<32>(init, range, poly);
 }
 
 } // namespace crc
