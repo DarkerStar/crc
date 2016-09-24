@@ -594,6 +594,139 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
 	return init;
 }
 
+template <std::size_t Bits, typename T, typename Range>
+constexpr auto calculate_raw(T init, Range const& range,
+		T poly) noexcept ->
+	std::enable_if_t<
+		!detail_::is_input_iterator<Range>::value &&
+			std::is_integral<T>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		T poly) noexcept ->
+	std::enable_if_t<std::is_integral<T>::value, T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename Range,
+	typename RandomAccessIterator>
+constexpr auto calculate_raw(T init, Range const& range,
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		!detail_::is_input_iterator<Range>::value &&
+			!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N,
+	typename RandomAccessIterator>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		RandomAccessIterator table_begin) noexcept ->
+	std::enable_if_t<
+		!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename Range, typename Table>
+constexpr auto calculate_raw(T init, Range const& range,
+		Table const& table) noexcept ->
+	std::enable_if_t<
+		!detail_::is_input_iterator<Range>::value &&
+			!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N,
+	typename Table>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		Table const& table) noexcept ->
+	std::enable_if_t<
+		!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename Range,
+	typename V, std::size_t M>
+constexpr auto calculate_raw(T init, Range const& range,
+		const V(&table)[M]) noexcept ->
+	std::enable_if_t<!detail_::is_input_iterator<Range>::value, T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N,
+	typename V, std::size_t M>
+constexpr auto calculate_raw(T init, const U(&range)[N],
+		const V(&table)[M]) noexcept
+{
+	return init;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+template <std::size_t Bits, typename T, typename Range>
+constexpr auto calculate_raw(T init, Range const& range) noexcept ->
+	std::enable_if_t<Bits == 16 &&
+			!detail_::is_input_iterator<Range>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, const U(&range)[N]) noexcept ->
+	std::enable_if_t<Bits == 16, T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename Range>
+constexpr auto calculate_raw(T init, Range const& range) noexcept ->
+	std::enable_if_t<Bits == 32 &&
+			!detail_::is_input_iterator<Range>::value,
+		T>
+{
+	return init;
+}
+
+template <std::size_t Bits, typename T, typename U, std::size_t N>
+constexpr auto calculate_raw(T init, const U(&range)[N]) noexcept ->
+	std::enable_if_t<Bits == 32, T>
+{
+	return init;
+}
+
+
+
+
 } // namespace crc
 } // namespace indi
 
