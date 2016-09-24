@@ -595,8 +595,8 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last)
 }
 
 template <std::size_t Bits, typename T, typename Range>
-constexpr auto calculate_raw(T init, Range const& range,
-		T poly) noexcept ->
+constexpr auto calculate_raw(T init, Range const& range, T poly)
+		noexcept ->
 	std::enable_if_t<
 		!detail_::is_input_iterator<Range>::value &&
 			std::is_integral<T>::value,
@@ -606,8 +606,8 @@ constexpr auto calculate_raw(T init, Range const& range,
 }
 
 template <std::size_t Bits, typename T, typename U, std::size_t N>
-constexpr auto calculate_raw(T init, const U(&range)[N],
-		T poly) noexcept ->
+constexpr auto calculate_raw(T init, const U(&range)[N], T poly)
+		noexcept ->
 	std::enable_if_t<std::is_integral<T>::value, T>
 {
 	return init;
@@ -681,17 +681,6 @@ constexpr auto calculate_raw(T init, const U(&range)[N],
 	return init;
 }
 
-
-
-
-
-
-
-
-
-
-
-
 template <std::size_t Bits, typename T, typename Range>
 constexpr auto calculate_raw(T init, Range const& range) noexcept ->
 	std::enable_if_t<Bits == 16 &&
@@ -723,9 +712,6 @@ constexpr auto calculate_raw(T init, const U(&range)[N]) noexcept ->
 {
 	return init;
 }
-
-
-
 
 } // namespace crc
 } // namespace indi
