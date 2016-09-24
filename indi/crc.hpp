@@ -526,6 +526,17 @@ constexpr auto calculate_next(T current, std::uint_fast8_t b,
 
 // calculate_raw ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// calculate_raw<16>(T init, InIt first, Sen last)
+// calculate_raw<32>(T init, InIt first, Sen last)
+// calculate_raw<Bits>(T init, InIt first, Sen last, T poly)
+// calculate_raw<Bits>(T init, InIt first, Sen last, RAIt table_first)
+// calculate_raw<Bits>(T init, InIt first, Sen last, Table const& table)
+// calculate_raw<16>(T init, Range const& r)
+// calculate_raw<32>(T init, Range const& r)
+// calculate_raw<Bits>(T init, Range const& r, T poly)
+// calculate_raw<Bits>(T init, Range const& r, RAIt table_first)
+// calculate_raw<Bits>(T init, Range const& r, Table const& table)
+
 template <std::size_t Bits, typename T, typename InputIterator,
 	typename Sentinel, typename RandomAccessIterator>
 constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
