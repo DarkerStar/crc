@@ -543,7 +543,7 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 		RandomAccessIterator table_begin) noexcept ->
 	std::enable_if_t<
 		detail_::is_input_iterator<InputIterator>::value &&
-			!std::is_integral<T>::value &&
+			!std::is_integral<RandomAccessIterator>::value &&
 			detail_::is_random_access_iterator<RandomAccessIterator>::
 				value,
 		T>
@@ -557,7 +557,7 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 		Table const& table) noexcept ->
 	std::enable_if_t<
 		detail_::is_input_iterator<InputIterator>::value &&
-			!std::is_integral<T>::value &&
+			!std::is_integral<Table>::value &&
 			!detail_::is_random_access_iterator<Table>::value,
 		T>
 {
