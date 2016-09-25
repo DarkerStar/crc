@@ -28,6 +28,7 @@ depsdir := .deps
 exe := crc-test
 
 src := test-main.cpp \
+       calculate.cpp \
        calculate-next.cpp \
        calculate-raw.cpp \
        generate-table.cpp \

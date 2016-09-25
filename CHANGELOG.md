@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `indi/crc-io.hpp` file: I/O and string formatting routines for CRCs.
 - `test/Makefile` file: test makefile, which builds the tests.
 - `test/test-main.cpp` file: main source code file for the tests.
+- `test/calculate.cpp` file: tests for CRC calculation.
 - `test/calculate-next.cpp` file: tests for calculating a single CRC.
 - `test/calculate-raw.cpp` file: tests for raw CRC calculation.
 - `test/generate-table.cpp` file: tests for generating lookup tables.
