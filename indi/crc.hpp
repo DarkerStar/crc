@@ -127,6 +127,26 @@ struct is_random_access_iterator<T,
 
 } // namespace detail_
 
+template <std::size_t Bits>
+struct crc_type
+{
+	static_assert(Bits > 0, "0-bit CRCs make no sense");
+	static_assert(Bits <= 64, "greater than 64-bit CRCs not supported");
+	
+	using type = std::conditional_t<(Bits <= 8),
+		std::uint_fast8_t,
+		std::conditional_t<(Bits <= 16),
+			std::uint_fast16_t,
+			std::conditional_t<(Bits <= 32),
+				std::uint_fast32_t,
+				std::uint_fast64_t>
+			>
+		>;
+};
+
+template <std::size_t Bits>
+using crc_type_t = typename crc_type<Bits>::type;
+
 namespace polynomials {
 
 // Common 16-bit CRC polynomials.
@@ -756,6 +776,84 @@ constexpr auto calculate_raw(T init, const U(&range)[N]) noexcept ->
 {
 	constexpr auto poly = static_cast<T>(polynomials::crc32);
 	return calculate_raw<32>(init, range, poly);
+}
+
+// calculate ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// calculate<Bits>(InIt first, Sen last, T poly)
+// calculate<Bits>(InIt first, Sen last, RAIt table_first)
+// calculate<Bits>(InIt first, Sen last, Table const& table)
+// calculate<16>(InIt first, Sen last)
+// calculate<32>(InIt first, Sen last)
+// calculate<Bits>(Range const& r, T poly)
+// calculate<Bits>(Range const& r, RAIt table_first)
+// calculate<Bits>(Range const& r, Table const& table)
+// calculate<16>(Range const& r)
+// calculate<32>(Range const& r)
+
+template <std::size_t Bits, typename InputIterator, typename Sentinel,
+	typename RandomAccessIterator, typename T = crc_type_t<Bits>>
+constexpr auto calculate(InputIterator first, Sentinel last,
+		RandomAccessIterator table_begin) ->
+	std::enable_if_t<detail_::is_input_iterator<InputIterator>::value &&
+			!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename InputIterator, typename Sentinel,
+	typename Table, typename T = crc_type_t<Bits>>
+constexpr auto calculate(InputIterator first, Sentinel last,
+		Table const& table) ->
+	std::enable_if_t<detail_::is_input_iterator<InputIterator>::value &&
+			!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename InputIterator, typename Sentinel,
+	typename U, std::size_t N, typename T = crc_type_t<Bits>>
+constexpr auto calculate(InputIterator first, Sentinel last,
+		const U(&table)[N]) ->
+	std::enable_if_t<detail_::is_input_iterator<InputIterator>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename InputIterator, typename Sentinel,
+	typename T>
+constexpr auto calculate(InputIterator first, Sentinel last, T poly) ->
+	std::enable_if_t<detail_::is_input_iterator<InputIterator>::value &&
+			std::is_integral<T>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename InputIterator, typename Sentinel,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(InputIterator first, Sentinel last) ->
+	std::enable_if_t<(Bits == 16) &&
+			detail_::is_input_iterator<InputIterator>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename InputIterator, typename Sentinel,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(InputIterator first, Sentinel last) ->
+	std::enable_if_t<(Bits == 32) &&
+			detail_::is_input_iterator<InputIterator>::value,
+		T>
+{
+	return T{};
 }
 
 } // namespace crc

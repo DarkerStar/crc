@@ -31,6 +31,7 @@ src := test-main.cpp \
        calculate.cpp \
        calculate-next.cpp \
        calculate-raw.cpp \
+       crc-type.cpp \
        generate-table.cpp \
        polynomials.cpp \
        polynomials-io.cpp
