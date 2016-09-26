@@ -856,6 +856,139 @@ constexpr auto calculate(InputIterator first, Sentinel last) ->
 	return T{};
 }
 
+template <std::size_t Bits, typename Range,
+	typename RandomAccessIterator, typename T = crc_type_t<Bits>>
+constexpr auto calculate(Range const& range,
+		RandomAccessIterator table_begin) ->
+	std::enable_if_t<!detail_::is_input_iterator<Range>::value &&
+			!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename U, std::size_t N,
+	typename RandomAccessIterator, typename T = crc_type_t<Bits>>
+constexpr auto calculate(const U(&range)[N],
+		RandomAccessIterator table_begin) ->
+	std::enable_if_t<!std::is_integral<RandomAccessIterator>::value &&
+			detail_::is_random_access_iterator<RandomAccessIterator>::
+				value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename Range, typename Table,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(Range const& range,
+		Table const& table) ->
+	std::enable_if_t<!detail_::is_input_iterator<Range>::value &&
+			!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename U, std::size_t N, typename Table,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(U const(&range)[N],
+		Table const& table) ->
+	std::enable_if_t<!std::is_integral<Table>::value &&
+			!detail_::is_random_access_iterator<Table>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename Range, typename V, std::size_t M,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(Range const& range,
+		V const (&table)[M]) ->
+	std::enable_if_t<!detail_::is_input_iterator<Range>::value, T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename U, std::size_t N,
+	typename V, std::size_t M, typename T = crc_type_t<Bits>>
+constexpr auto calculate(U const(&range)[N],
+		V const(&table)[M])
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename Range, typename T,
+	typename R = crc_type_t<Bits>>
+constexpr auto calculate(Range const& range, T poly) ->
+	std::enable_if_t<!detail_::is_input_iterator<Range>::value &&
+			std::is_integral<T>::value,
+		R>
+{
+	return R{};
+}
+
+template <std::size_t Bits, typename U, std::size_t N,
+	typename T, typename R = crc_type_t<Bits>>
+constexpr auto calculate(const U(&range)[N], T poly) ->
+	std::enable_if_t<std::is_integral<T>::value, R>
+{
+	return R{};
+}
+
+
+
+
+
+
+
+
+template <std::size_t Bits, typename Range,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(Range const& range) ->
+	std::enable_if_t<Bits == 16 &&
+			!detail_::is_input_iterator<Range>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename U, std::size_t N,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(const U(&range)[N]) ->
+	std::enable_if_t<Bits == 16 && std::is_integral<T>::value, T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename Range,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(Range const& range) ->
+	std::enable_if_t<Bits == 32 &&
+			!detail_::is_input_iterator<Range>::value,
+		T>
+{
+	return T{};
+}
+
+template <std::size_t Bits, typename U, std::size_t N,
+	typename T = crc_type_t<Bits>>
+constexpr auto calculate(const U(&range)[N]) ->
+	std::enable_if_t<Bits == 32 && std::is_integral<T>::value, T>
+{
+	return T{};
+}
+
+
+
+
+
+
+
+
 } // namespace crc
 } // namespace indi
 
