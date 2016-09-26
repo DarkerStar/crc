@@ -710,11 +710,11 @@ BOOST_AUTO_TEST_CASE(calculate_arraytable)
 	unsigned char const cdata2[] = { 5, 6, 7, 8 };
 	auto const fldata2 = std::forward_list<unsigned char>{ 5, 6, 7, 8 };
 	
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(cdata1), end(cdata1), table), 0x05u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(fldata1), end(fldata1), table), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(cdata2), end(cdata2), table), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(fldata2), end(fldata2), table), 0x05u);
 	
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, table), 0x05u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, table), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata2, table), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata2, table), 0x05u);
 }
 
 // Testing CRC16.
@@ -740,12 +740,12 @@ BOOST_AUTO_TEST_CASE(calculate_16)
 		0x74u, 0x65u, 0x73u, 0x74u };
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(
-		begin(cdata1), end(cdata1)), 0x304Fu);
+		begin(cdata2), end(cdata2)), 0x23D1u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(
-		begin(fldata1), end(fldata1)), 0x304Fu);
+		begin(fldata2), end(fldata2)), 0x23D1u);
 	
-	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(cdata1), 0x304Fu);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(fldata1), 0x304Fu);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(cdata2), 0x23D1u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(fldata2), 0x23D1u);
 }
 
 // Testing CRC32.

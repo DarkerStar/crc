@@ -801,7 +801,8 @@ constexpr auto calculate(InputIterator first, Sentinel last,
 				value,
 		T>
 {
-	return T{};
+	constexpr auto ones = detail_::ones<Bits, T>();
+	return ones ^ calculate_raw<Bits>(ones, first, last, table_begin);
 }
 
 template <std::size_t Bits, typename InputIterator, typename Sentinel,
@@ -813,7 +814,9 @@ constexpr auto calculate(InputIterator first, Sentinel last,
 			!detail_::is_random_access_iterator<Table>::value,
 		T>
 {
-	return T{};
+	using std::begin;
+	return calculate<Bits, InputIterator, Sentinel,
+		decltype(begin(table)), T>(first, last, begin(table));
 }
 
 template <std::size_t Bits, typename InputIterator, typename Sentinel,
@@ -823,7 +826,9 @@ constexpr auto calculate(InputIterator first, Sentinel last,
 	std::enable_if_t<detail_::is_input_iterator<InputIterator>::value,
 		T>
 {
-	return T{};
+	using std::begin;
+	return calculate<Bits, InputIterator, Sentinel,
+		decltype(begin(table)), T>(first, last, begin(table));
 }
 
 template <std::size_t Bits, typename InputIterator, typename Sentinel,
@@ -833,7 +838,8 @@ constexpr auto calculate(InputIterator first, Sentinel last, T poly) ->
 			std::is_integral<T>::value,
 		T>
 {
-	return T{};
+	constexpr auto ones = detail_::ones<Bits, T>();
+	return ones ^ calculate_raw<Bits>(ones, first, last, poly);
 }
 
 template <std::size_t Bits, typename InputIterator, typename Sentinel,
@@ -843,7 +849,8 @@ constexpr auto calculate(InputIterator first, Sentinel last) ->
 			detail_::is_input_iterator<InputIterator>::value,
 		T>
 {
-	return T{};
+	constexpr auto ones = detail_::ones<Bits, T>();
+	return ones ^ calculate_raw<Bits>(ones, first, last);
 }
 
 template <std::size_t Bits, typename InputIterator, typename Sentinel,
@@ -853,7 +860,8 @@ constexpr auto calculate(InputIterator first, Sentinel last) ->
 			detail_::is_input_iterator<InputIterator>::value,
 		T>
 {
-	return T{};
+	constexpr auto ones = detail_::ones<Bits, T>();
+	return ones ^ calculate_raw<Bits>(ones, first, last);
 }
 
 template <std::size_t Bits, typename Range,
@@ -866,7 +874,10 @@ constexpr auto calculate(Range const& range,
 				value,
 		T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits, decltype(begin(range)), decltype(end(range)),
+		RandomAccessIterator, T>(begin(range), end(range), table_begin);
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -878,7 +889,10 @@ constexpr auto calculate(const U(&range)[N],
 				value,
 		T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits, decltype(begin(range)), decltype(end(range)),
+		RandomAccessIterator, T>(begin(range), end(range), table_begin);
 }
 
 template <std::size_t Bits, typename Range, typename Table,
@@ -890,7 +904,10 @@ constexpr auto calculate(Range const& range,
 			!detail_::is_random_access_iterator<Table>::value,
 		T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits, decltype(begin(range)), decltype(end(range)),
+		Table, T>(begin(range), end(range), table);
 }
 
 template <std::size_t Bits, typename U, std::size_t N, typename Table,
@@ -901,7 +918,10 @@ constexpr auto calculate(U const(&range)[N],
 			!detail_::is_random_access_iterator<Table>::value,
 		T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits, decltype(begin(range)), decltype(end(range)),
+		Table, T>(begin(range), end(range), table);
 }
 
 template <std::size_t Bits, typename Range, typename V, std::size_t M,
@@ -910,7 +930,10 @@ constexpr auto calculate(Range const& range,
 		V const (&table)[M]) ->
 	std::enable_if_t<!detail_::is_input_iterator<Range>::value, T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits, decltype(begin(range)), decltype(end(range)),
+		V, M, T>(begin(range), end(range), table);
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -918,7 +941,10 @@ template <std::size_t Bits, typename U, std::size_t N,
 constexpr auto calculate(U const(&range)[N],
 		V const(&table)[M])
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits, decltype(begin(range)), decltype(end(range)),
+		V, M, T>(begin(range), end(range), table);
 }
 
 template <std::size_t Bits, typename Range, typename T,
@@ -928,7 +954,9 @@ constexpr auto calculate(Range const& range, T poly) ->
 			std::is_integral<T>::value,
 		R>
 {
-	return R{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits>(begin(range), end(range), poly);
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -936,15 +964,10 @@ template <std::size_t Bits, typename U, std::size_t N,
 constexpr auto calculate(const U(&range)[N], T poly) ->
 	std::enable_if_t<std::is_integral<T>::value, R>
 {
-	return R{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits>(begin(range), end(range), poly);
 }
-
-
-
-
-
-
-
 
 template <std::size_t Bits, typename Range,
 	typename T = crc_type_t<Bits>>
@@ -953,7 +976,9 @@ constexpr auto calculate(Range const& range) ->
 			!detail_::is_input_iterator<Range>::value,
 		T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits>(begin(range), end(range));
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -961,7 +986,9 @@ template <std::size_t Bits, typename U, std::size_t N,
 constexpr auto calculate(const U(&range)[N]) ->
 	std::enable_if_t<Bits == 16 && std::is_integral<T>::value, T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits>(begin(range), end(range));
 }
 
 template <std::size_t Bits, typename Range,
@@ -971,7 +998,9 @@ constexpr auto calculate(Range const& range) ->
 			!detail_::is_input_iterator<Range>::value,
 		T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits>(begin(range), end(range));
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -979,15 +1008,10 @@ template <std::size_t Bits, typename U, std::size_t N,
 constexpr auto calculate(const U(&range)[N]) ->
 	std::enable_if_t<Bits == 32 && std::is_integral<T>::value, T>
 {
-	return T{};
+	using std::begin;
+	using std::end;
+	return calculate<Bits>(begin(range), end(range));
 }
-
-
-
-
-
-
-
 
 } // namespace crc
 } // namespace indi
