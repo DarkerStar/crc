@@ -37,18 +37,18 @@ BOOST_AUTO_TEST_SUITE(calculate_next_suite)
 //     T: Constrained to be an unsigned integer type.
 BOOST_AUTO_TEST_CASE(calculate_next_iterator_signature)
 {
-    constexpr auto uchar_ptr = static_cast<unsigned char const*>(nullptr);
+    //constexpr auto uchar_ptr = static_cast<unsigned char const*>(nullptr);
     constexpr auto uint_ptr = static_cast<unsigned const*>(nullptr);
     constexpr auto ulint_ptr = static_cast<unsigned long const*>(nullptr);
     constexpr auto ullint_ptr = static_cast<unsigned long long const*>(nullptr);
     constexpr auto u8f_ptr = static_cast<std::uint_fast8_t*>(nullptr);
     constexpr auto u8l_ptr = static_cast<std::uint_least8_t*>(nullptr);
-    constexpr auto u16f_ptr = static_cast<std::uint_fast16_t*>(nullptr);
-    constexpr auto u16l_ptr = static_cast<std::uint_least16_t*>(nullptr);
-    constexpr auto u32f_ptr = static_cast<std::uint_fast32_t*>(nullptr);
-    constexpr auto u32l_ptr = static_cast<std::uint_least32_t*>(nullptr);
-    constexpr auto u64f_ptr = static_cast<std::uint_fast64_t*>(nullptr);
-    constexpr auto u64l_ptr = static_cast<std::uint_least64_t*>(nullptr);
+    //constexpr auto u16f_ptr = static_cast<std::uint_fast16_t*>(nullptr);
+    //constexpr auto u16l_ptr = static_cast<std::uint_least16_t*>(nullptr);
+    //constexpr auto u32f_ptr = static_cast<std::uint_fast32_t*>(nullptr);
+    //constexpr auto u32l_ptr = static_cast<std::uint_least32_t*>(nullptr);
+    //constexpr auto u64f_ptr = static_cast<std::uint_fast64_t*>(nullptr);
+    //constexpr auto u64l_ptr = static_cast<std::uint_least64_t*>(nullptr);
     
     constexpr auto uchar_val = static_cast<unsigned char>(0u);
     constexpr auto u8f_val = std::uint_fast8_t{0u};
@@ -140,14 +140,14 @@ BOOST_AUTO_TEST_CASE(calculate_next_iterator_signature)
 BOOST_AUTO_TEST_CASE(calculate_next_range_signature)
 {
     constexpr auto uchar_val = static_cast<unsigned char>(0u);
-    constexpr auto u8f_val = std::uint_fast8_t{0u};
-    constexpr auto u8l_val = std::uint_least8_t{0u};
+    //constexpr auto u8f_val = std::uint_fast8_t{0u};
+    //constexpr auto u8l_val = std::uint_least8_t{0u};
     
     unsigned char uc_ctable[256];
     unsigned int ui_ctable[300];
     
-    auto const u16l_atable =
-        std::array<std::uint_least16_t, 512>{};
+    //auto const u16l_atable =
+    //    std::array<std::uint_least16_t, 512>{};
     auto const u32f_atable =
         std::array<std::uint_fast32_t, 260>{};
     auto const u64f_atable =
