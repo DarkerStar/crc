@@ -45,4 +45,4 @@ test-build-only :
 # Nothing to clean here, so just recurse into the tests and clean there.
 .PHONY : clean
 clean : 
-	@$(MAKE) -C ${testdir} ${@}
+	@$(MAKE) -C ${testdir} clean
