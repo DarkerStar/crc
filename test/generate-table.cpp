@@ -41,7 +41,7 @@ auto load_crc_table(std::string file)
 		table.emplace_back(std::stoull(line, nullptr, 16));
 	
 	return table;
-};
+}
 
 BOOST_AUTO_TEST_SUITE(generate_table_suite)
 
