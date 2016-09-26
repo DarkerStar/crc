@@ -481,9 +481,23 @@ BOOST_AUTO_TEST_CASE(calculate_range_signature_5)
 // Testing with polynomial argument.
 BOOST_AUTO_TEST_CASE(calculate_poly)
 {
+	using std::begin;
+	using std::end;
+	
 	unsigned char const cdata1[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	auto const fldata1 = std::forward_list<unsigned char>{
 		1, 2, 3, 4, 5, 6, 7, 8 };
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(cdata1), end(cdata1), 0x09u), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(fldata1), end(fldata1), 0x09u), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(cdata1), end(cdata1), 0x42F0E1EBA9EA3693uLL),
+		0x4A615176111E5439uLL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(fldata1), end(fldata1), 0x42F0E1EBA9EA3693uLL),
+		0x4A615176111E5439uLL);
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, 0x09u), 0x05u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, 0x09u), 0x05u);
@@ -495,6 +509,17 @@ BOOST_AUTO_TEST_CASE(calculate_poly)
 	unsigned char const cdata2[] = { 0x74u, 0x65u, 0x73u, 0x74u };
 	auto const fldata2 = std::forward_list<unsigned char>{
 		0x74u, 0x65u, 0x73u, 0x74u };
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(cdata2), end(cdata2), 0x09u), 0x1Au);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(fldata2), end(fldata2), 0x09u), 0x1Au);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(cdata2), end(cdata2), 0x42F0E1EBA9EA3693uLL),
+		0xFA15FDA7C10C75A5uLL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(fldata2), end(fldata2), 0x42F0E1EBA9EA3693uLL),
+		0xFA15FDA7C10C75A5uLL);
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata2, 0x09u), 0x1Au);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata2, 0x09u), 0x1Au);
@@ -523,42 +548,52 @@ BOOST_AUTO_TEST_CASE(calculate_tableiter)
 	auto const fldata1 = std::forward_list<unsigned char>{
 		1, 2, 3, 4, 5, 6, 7, 8 };
 	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+			begin(cdata1), end(cdata1), begin(ctable_5)),
+		0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+			begin(fldata1), end(fldata1), begin(ctable_5)),
+		0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(cdata1), end(cdata1), begin(ctable_64)),
+		0x4A615176111E5439uLL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(fldata1), end(fldata1), begin(ctable_64)),
+		0x4A615176111E5439uLL);
+	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, begin(ctable_5)),
 		0x05u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, begin(ctable_5)),
 		0x05u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, begin(dtable_5)),
-		0x05u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, begin(dtable_5)),
-		0x05u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata1, begin(ctable_64)),
 		0x4A615176111E5439uLL);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata1, begin(ctable_64)),
-		0x4A615176111E5439uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata1, begin(dtable_64)),
-		0x4A615176111E5439uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata1, begin(dtable_64)),
 		0x4A615176111E5439uLL);
 	
 	unsigned char const cdata2[] = { 0x74u, 0x65u, 0x73u, 0x74u };
 	auto const fldata2 = std::forward_list<unsigned char>{
 		0x74u, 0x65u, 0x73u, 0x74u };
 	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+			begin(cdata2), end(cdata2), begin(ctable_5)),
+		0x1Au);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+			begin(fldata2), end(fldata2), begin(ctable_5)),
+		0x1Au);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(cdata2), end(cdata2), begin(ctable_64)),
+		0xFA15FDA7C10C75A5uLL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(fldata2), end(fldata2), begin(ctable_64)),
+		0xFA15FDA7C10C75A5uLL);
+	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata2, begin(ctable_5)),
 		0x1Au);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata2, begin(ctable_5)),
 		0x1Au);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata2, begin(dtable_5)),
-		0x1Au);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata2, begin(dtable_5)),
-		0x1Au);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata2, begin(ctable_64)),
 		0xFA15FDA7C10C75A5uLL);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata2, begin(ctable_64)),
-		0xFA15FDA7C10C75A5uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata2, begin(dtable_64)),
-		0xFA15FDA7C10C75A5uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata2, begin(dtable_64)),
 		0xFA15FDA7C10C75A5uLL);
 }
 
@@ -581,40 +616,53 @@ BOOST_AUTO_TEST_CASE(calculate_table)
 	auto const fldata1 = std::forward_list<unsigned char>{
 		1, 2, 3, 4, 5, 6, 7, 8 };
 	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(cdata1), end(cdata1), ctable_5), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(fldata1), end(fldata1), ctable_5), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(cdata1), end(cdata1), ctable_64),
+		0x4A615176111E5439uLL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(fldata1), end(fldata1), ctable_64),
+		0x4A615176111E5439uLL);
+	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, ctable_5), 0x05u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, ctable_5), 0x05u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, dtable_5), 0x05u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, dtable_5), 0x05u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata1, ctable_64),
 		0x4A615176111E5439uLL);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata1, ctable_64),
-		0x4A615176111E5439uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata1, dtable_64),
-		0x4A615176111E5439uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata1, dtable_64),
 		0x4A615176111E5439uLL);
 	
 	unsigned char const cdata2[] = { 0x74u, 0x65u, 0x73u, 0x74u };
 	auto const fldata2 = std::forward_list<unsigned char>{
 		0x74u, 0x65u, 0x73u, 0x74u };
 	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(cdata2), end(cdata2), ctable_5), 0x1Au);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(
+		begin(fldata2), end(fldata2), ctable_5), 0x1Au);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(cdata2), end(cdata2), ctable_64),
+		0xFA15FDA7C10C75A5uLL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(
+			begin(fldata2), end(fldata2), ctable_64),
+		0xFA15FDA7C10C75A5uLL);
+	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata2, ctable_5), 0x1Au);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata2, ctable_5), 0x1Au);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata2, dtable_5), 0x1Au);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata2, dtable_5), 0x1Au);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata2, ctable_64),
 		0xFA15FDA7C10C75A5uLL);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata2, ctable_64),
-		0xFA15FDA7C10C75A5uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(cdata2, dtable_64),
-		0xFA15FDA7C10C75A5uLL);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<64>(fldata2, dtable_64),
 		0xFA15FDA7C10C75A5uLL);
 }
 
 // Testing with lookup table range argument, where table is a C array.
 BOOST_AUTO_TEST_CASE(calculate_arraytable)
 {
+	using std::begin;
+	using std::end;
+	
 	unsigned char const table[256] = {
 		0x00u, 0x0Fu, 0x1Eu, 0x11u, 0x19u, 0x16u, 0x07u, 0x08u,
 		0x17u, 0x18u, 0x09u, 0x06u, 0x0Eu, 0x01u, 0x10u, 0x1Fu,
@@ -653,11 +701,17 @@ BOOST_AUTO_TEST_CASE(calculate_arraytable)
 	unsigned char const cdata1[] = { 1, 2, 3, 4 };
 	auto const fldata1 = std::forward_list<unsigned char>{ 1, 2, 3, 4 };
 	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(cdata1), end(cdata1), table), 0x00u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(fldata1), end(fldata1), table), 0x00u);
+	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, table), 0x00u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, table), 0x00u);
 	
 	unsigned char const cdata2[] = { 5, 6, 7, 8 };
 	auto const fldata2 = std::forward_list<unsigned char>{ 5, 6, 7, 8 };
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(cdata1), end(cdata1), table), 0x05u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(begin(fldata1), end(fldata1), table), 0x05u);
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(cdata1, table), 0x05u);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<5>(fldata1, table), 0x05u);
@@ -666,9 +720,17 @@ BOOST_AUTO_TEST_CASE(calculate_arraytable)
 // Testing CRC16.
 BOOST_AUTO_TEST_CASE(calculate_16)
 {
+	using std::begin;
+	using std::end;
+	
 	unsigned char const cdata1[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	auto const fldata1 = std::forward_list<unsigned char>{
 		1, 2, 3, 4, 5, 6, 7, 8 };
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(
+		begin(cdata1), end(cdata1)), 0x304Fu);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(
+		begin(fldata1), end(fldata1)), 0x304Fu);
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(cdata1), 0x304Fu);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(fldata1), 0x304Fu);
@@ -677,16 +739,29 @@ BOOST_AUTO_TEST_CASE(calculate_16)
 	auto const fldata2 = std::forward_list<unsigned char>{
 		0x74u, 0x65u, 0x73u, 0x74u };
 	
-	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(cdata2), 0x23D1u);
-	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(fldata2), 0x23D1u);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(
+		begin(cdata1), end(cdata1)), 0x304Fu);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(
+		begin(fldata1), end(fldata1)), 0x304Fu);
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(cdata1), 0x304Fu);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<16>(fldata1), 0x304Fu);
 }
 
 // Testing CRC32.
 BOOST_AUTO_TEST_CASE(calculate_32)
 {
+	using std::begin;
+	using std::end;
+	
 	unsigned char const cdata1[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	auto const fldata1 = std::forward_list<unsigned char>{
 		1, 2, 3, 4, 5, 6, 7, 8 };
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(
+		begin(cdata1), end(cdata1)), 0x3FCA88C5uL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(
+		begin(fldata1), end(fldata1)), 0x3FCA88C5uL);
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(cdata1), 0x3FCA88C5uL);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(fldata1), 0x3FCA88C5uL);
@@ -694,6 +769,11 @@ BOOST_AUTO_TEST_CASE(calculate_32)
 	unsigned char const cdata2[] = { 0x49u, 0x45u, 0x4Eu, 0x44u };
 	auto const fldata2 = std::forward_list<unsigned char>{
 		0x49u, 0x45u, 0x4Eu, 0x44u };
+	
+	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(
+		begin(cdata2), end(cdata2)), 0xAE426082uL);
+	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(
+		begin(fldata2), end(fldata2)), 0xAE426082uL);
 	
 	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(cdata2), 0xAE426082uL);
 	BOOST_CHECK_EQUAL(indi::crc::calculate<32>(fldata2), 0xAE426082uL);
