@@ -18,7 +18,7 @@ matrix:
           packages:
             - g++-6
             - libboost-test-dev
-      env: INDI_CRC_CC=gcc-6 INDI_CRC_CXX=g++-6
+      env: INDI_CRC_CC=gcc-6 INDI_CRC_CXX=g++-6 CPPFLAGS='-Wpedantic -Wall -Wextra'
 
 # Force my compiler choices over Travis's.
 before_script:
