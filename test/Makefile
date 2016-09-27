@@ -67,7 +67,7 @@ ${exe} : ${obj}
 # the dependency chain is not caught).
 ${obj} : %.o : %.cpp
 	@mkdir -p "${depsdir}/${@D}"
-	${CXX} ${CXXFLAGS} ${CPPFLAGS} -c -MMD -o ${@} ${<}
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} -c -MMD -o ${@} ${<}
 	@{ printf '%s ' "${depsdir}/${*}.d" ; cat "${*}.d" ; } >"${depsdir}/${*}.d"
 	@rm "${*}.d"
 

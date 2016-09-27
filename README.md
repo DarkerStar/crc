@@ -5,7 +5,7 @@
 
 Drop-in CRC calculation for C++ projects.
 
-* Version: (unreleased, in development)
+* Version: 0.1.0
 * Project URL: https://github.com/DarkerStar/crc
 
 ## Details
