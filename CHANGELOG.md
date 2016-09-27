@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## 0.1.0 - 2016-09-27
 ### Added
 - `CHANGELOG.md` file: change log.
 - `LICENSE` file: project licence (contains
@@ -34,3 +36,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `test/data/table-crc32c` file: test lookup table values for CRC32c.
 - `test/data/table-crc64-ecma` file: test lookup table values for
   CRC64-ECMA.
+
+[Unreleased]: https://github.com/DarkerStar/crc/compare/v0.1.0...HEAD
