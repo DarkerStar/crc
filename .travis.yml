@@ -1,0 +1,32 @@
+# Set language to C++.
+language: cpp
+
+# Only do testing on master, develop, release, and hotfix branches.
+branches:
+  only:
+  - master
+  - develop
+  - /^release-.*$/
+  - /^hotfix-.*$/
+
+# For now, only test with g++ 6
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - libboost-test-dev
+      env: INDI_CRC_CC=gcc-6 INDI_CRC_CXX=g++-6 CPPFLAGS='-Wpedantic -Wall -Wextra'
+
+# Force my compiler choices over Travis's.
+before_script:
+  - if [ -n "${INDI_CRC_CC}" ] ; then export CC="${INDI_CRC_CC}" && unset INDI_CRC_CC ; fi
+  - if [ -n "${INDI_CRC_CXX}" ] ; then export CXX="${INDI_CRC_CXX}" && unset INDI_CRC_CXX ; fi
+
+# `make test` makes the tests and runs them.
+script:
+  - make test
