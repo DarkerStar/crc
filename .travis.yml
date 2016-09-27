@@ -1,11 +1,13 @@
 # Set language to C++.
 language: cpp
 
-# Only do testing on master, develop, and release branches (release pending).
+# Only do testing on master, develop, release, and hotfix branches.
 branches:
   only:
   - master
   - develop
+  - /^release-.*$/
+  - /^hotfix-.*$/
 
 # For now, only test with g++ 6
 matrix:
