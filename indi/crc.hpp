@@ -94,7 +94,7 @@ constexpr auto ones() noexcept
 	
 	// IMPORTANT: The "1" must be cast to T before shifting.
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
-		val |= (T(0x1u) << bit);
+		val = static_cast<T>(val | (T{1u} << bit));
 	
 	return val;
 }
@@ -319,10 +319,9 @@ constexpr auto reversed(T polynomial) noexcept
 	
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
 	{
-		result <<= 1;
-		result |= polynomial & 1u;
+		result = static_cast<T>((polynomial & 1u) | (result << 1));
 		
-		polynomial >>= 1;
+		polynomial = static_cast<T>(polynomial >> 1);
 	}
 	
 	return result;
@@ -364,7 +363,7 @@ constexpr auto generate_table(T polynomial) noexcept
 	for (auto n = std::size_t{0}; n < std::size_t{256}; ++n)
 	{
 		// Start with the value set as the index.
-		table[n] = T(n);
+		table[n] = static_cast<T>(n);
 		
 		// For each bit...
 		for (auto bit = 0; bit < 8; ++bit)
@@ -373,13 +372,13 @@ constexpr auto generate_table(T polynomial) noexcept
 			// polynomial.
 			if (table[n] & 1)
 			{
-				table[n] >>= 1;
-				table[n] ^= reversed_polynomial;
+				table[n] = static_cast<T>((table[n] >> 1) ^
+					reversed_polynomial);
 			}
 			// ... if the bit is not set, do nothing.
 			else
 			{
-				table[n] >>= 1;
+				table[n] = static_cast<T>((table[n] >> 1));
 			}
 		}
 	}
