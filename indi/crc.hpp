@@ -568,8 +568,8 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 				value,
 		T>
 {
-	auto calculator = [&table_begin](auto last, auto b)
-		{ return calculate_next(last, b, table_begin); };
+	auto calculator = [&table_begin](auto previous_crc, auto value)
+		{ return calculate_next(previous_crc, value, table_begin); };
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -583,8 +583,8 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 			!detail_::is_random_access_iterator<Table>::value,
 		T>
 {
-	auto calculator = [&table](auto last, auto b)
-		{ return calculate_next(last, b, table); };
+	auto calculator = [&table](auto previous_crc, auto value)
+		{ return calculate_next(previous_crc, value, table); };
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -593,8 +593,8 @@ template <std::size_t Bits, typename T, typename InputIterator,
 constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 		const U(&table)[N]) noexcept
 {
-	auto calculator = [&table](auto last, auto b)
-		{ return calculate_next(last, b, table); };
+	auto calculator = [&table](auto previous_crc, auto value)
+		{ return calculate_next(previous_crc, value, table); };
 	return std::accumulate(first, last, init, calculator);
 }
 
