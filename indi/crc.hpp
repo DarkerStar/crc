@@ -568,7 +568,10 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 		T>
 {
 	auto calculator = [&table_begin](auto previous_crc, auto value)
-		{ return calculate_next(previous_crc, value, table_begin); };
+	{
+		return calculate_next(previous_crc,
+			static_cast<std::uint_fast8_t>(value), table_begin);
+	};
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -583,7 +586,10 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 		T>
 {
 	auto calculator = [&table](auto previous_crc, auto value)
-		{ return calculate_next(previous_crc, value, table); };
+	{
+		return calculate_next(previous_crc,
+			static_cast<std::uint_fast8_t>(value), table);
+	};
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -955,7 +961,8 @@ constexpr auto calculate(Range const& range, T poly) ->
 {
 	using std::begin;
 	using std::end;
-	return calculate<Bits>(begin(range), end(range), poly);
+	return static_cast<R>(calculate<Bits>(begin(range), end(range),
+		poly));
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -965,7 +972,8 @@ constexpr auto calculate(const U(&range)[N], T poly) ->
 {
 	using std::begin;
 	using std::end;
-	return calculate<Bits>(begin(range), end(range), poly);
+	return static_cast<R>(calculate<Bits>(begin(range), end(range),
+		poly));
 }
 
 template <std::size_t Bits, typename Range,
