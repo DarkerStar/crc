@@ -94,7 +94,7 @@ constexpr auto ones() noexcept
 	
 	// IMPORTANT: The "1" must be cast to T before shifting.
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
-		val |= (T(0x1u) << bit);
+		val = static_cast<T>(val | (T{1u} << bit));
 	
 	return val;
 }
@@ -319,10 +319,9 @@ constexpr auto reversed(T polynomial) noexcept
 	
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
 	{
-		result <<= 1;
-		result |= polynomial & 1u;
+		result = static_cast<T>((polynomial & 1u) | (result << 1));
 		
-		polynomial >>= 1;
+		polynomial = static_cast<T>(polynomial >> 1);
 	}
 	
 	return result;
@@ -364,7 +363,7 @@ constexpr auto generate_table(T polynomial) noexcept
 	for (auto n = std::size_t{0}; n < std::size_t{256}; ++n)
 	{
 		// Start with the value set as the index.
-		table[n] = T(n);
+		table[n] = static_cast<T>(n);
 		
 		// For each bit...
 		for (auto bit = 0; bit < 8; ++bit)
@@ -373,13 +372,13 @@ constexpr auto generate_table(T polynomial) noexcept
 			// polynomial.
 			if (table[n] & 1)
 			{
-				table[n] >>= 1;
-				table[n] ^= reversed_polynomial;
+				table[n] = static_cast<T>((table[n] >> 1) ^
+					reversed_polynomial);
 			}
 			// ... if the bit is not set, do nothing.
 			else
 			{
-				table[n] >>= 1;
+				table[n] = static_cast<T>((table[n] >> 1));
 			}
 		}
 	}
@@ -568,8 +567,11 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 				value,
 		T>
 {
-	auto calculator = [&table_begin](auto last, auto b)
-		{ return calculate_next(last, b, table_begin); };
+	auto calculator = [&table_begin](auto previous_crc, auto value)
+	{
+		return calculate_next(previous_crc,
+			static_cast<std::uint_fast8_t>(value), table_begin);
+	};
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -583,8 +585,11 @@ constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 			!detail_::is_random_access_iterator<Table>::value,
 		T>
 {
-	auto calculator = [&table](auto last, auto b)
-		{ return calculate_next(last, b, table); };
+	auto calculator = [&table](auto previous_crc, auto value)
+	{
+		return calculate_next(previous_crc,
+			static_cast<std::uint_fast8_t>(value), table);
+	};
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -593,8 +598,8 @@ template <std::size_t Bits, typename T, typename InputIterator,
 constexpr auto calculate_raw(T init, InputIterator first, Sentinel last,
 		const U(&table)[N]) noexcept
 {
-	auto calculator = [&table](auto last, auto b)
-		{ return calculate_next(last, b, table); };
+	auto calculator = [&table](auto previous_crc, auto value)
+		{ return calculate_next(previous_crc, value, table); };
 	return std::accumulate(first, last, init, calculator);
 }
 
@@ -956,7 +961,8 @@ constexpr auto calculate(Range const& range, T poly) ->
 {
 	using std::begin;
 	using std::end;
-	return calculate<Bits>(begin(range), end(range), poly);
+	return static_cast<R>(calculate<Bits>(begin(range), end(range),
+		poly));
 }
 
 template <std::size_t Bits, typename U, std::size_t N,
@@ -966,7 +972,8 @@ constexpr auto calculate(const U(&range)[N], T poly) ->
 {
 	using std::begin;
 	using std::end;
-	return calculate<Bits>(begin(range), end(range), poly);
+	return static_cast<R>(calculate<Bits>(begin(range), end(range),
+		poly));
 }
 
 template <std::size_t Bits, typename Range,
