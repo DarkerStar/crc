@@ -1,3 +1,6 @@
+# Set distribution to Trusty.
+dist: trusty
+
 # Set language to C++.
 language: cpp
 
