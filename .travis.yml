@@ -1,4 +1,5 @@
 # Set distribution to Trusty.
+sudo: required
 dist: trusty
 
 # Set language to C++.
