@@ -321,7 +321,9 @@ constexpr auto reversed(T polynomial) noexcept
 	
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
 	{
-		result = static_cast<T>((polynomial & 1u) | (result << 1));
+		result = static_cast<T>((polynomial & 1u) | 
+			static_cast<std::make_unsigned_t<decltype(result << 1)>>(
+				result << 1));
 		
 		polynomial = static_cast<T>(polynomial >> 1);
 	}
