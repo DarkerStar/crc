@@ -38,7 +38,8 @@ matrix:
         - export CC=gcc-6
         - export CXX=g++-6
       install:
-        - pip install cpp-coveralls
+        - pip install --user requests[security]
+        - pip install --user cpp-coveralls
       after_success:
         - coveralls --verbose --gcov gcov-6 --gcov-options '\--long-file-names --preserve-paths'
 
