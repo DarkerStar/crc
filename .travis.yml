@@ -36,7 +36,7 @@ matrix:
       install:
         - pip install --user requests[security]
         - pip install --user cpp-coveralls
-      after_install:
+      before_script:
         - export CC=gcc-6
         - export CXX=g++-6
         - CPPFLAGS='-pedantic -Wall -Wextra -Wconversion -Wshadow -g -O0 --coverage'
