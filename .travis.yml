@@ -13,7 +13,7 @@ branches:
   - /^release-.*$/
   - /^hotfix-.*$/
 
-# For now, only test with g++ 6 and coveralls
+# For now, only test with g++ 6 and coveralls.
 matrix:
   include:
     - compiler: gcc
