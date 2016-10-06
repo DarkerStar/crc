@@ -30,8 +30,8 @@ root directory.
 
 Branch              | Status
 --------------------|--------
-[`master`][br-mas]  | [![TravisCI for `master` branch][tcis-mas]][tcisbr-mas]
-[`develop`][br-dev] | [![TravisCI for `develop` branch][tcis-dev]][tcisbr-dev]
+[`master`][br-mas]  | [![TravisCI for `master` branch][tcis-mas]][tcisbr-mas] [![Coveralls for `master` branch][cov-mas]][covbr-mas]
+[`develop`][br-dev] | [![TravisCI for `develop` branch][tcis-dev]][tcisbr-dev] [![Coveralls for `develop` branch][cov-dev]][covbr-dev]
 
 [wiki]: https://github.com/DarkerStar/crc/wiki
 [GPLv3]: https://www.gnu.org/licenses/gpl.html
@@ -50,3 +50,7 @@ Branch              | Status
 [tcis-dev]: https://travis-ci.org/DarkerStar/crc.svg?branch=develop
 [tcisbr-mas]: https://travis-ci.org/DarkerStar/crc
 [tcisbr-dev]: https://travis-ci.org/DarkerStar/crc/tree/develop
+[cov-mas]: https://coveralls.io/repos/github/DarkerStar/crc/badge.svg?branch=master
+[cov-dev]: https://coveralls.io/repos/github/DarkerStar/crc/badge.svg?branch=develop
+[covbr-mas]: https://coveralls.io/github/DarkerStar/crc?branch=master
+[covbr-dev]: https://coveralls.io/github/DarkerStar/crc?branch=develop

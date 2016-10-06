@@ -13,7 +13,7 @@ branches:
   - /^release-.*$/
   - /^hotfix-.*$/
 
-# For now, only test with g++ 6
+# For now, only test with g++ 6 and coveralls
 matrix:
   include:
     - compiler: gcc
@@ -24,6 +24,7 @@ matrix:
           packages:
             - g++-6
             - libboost-test-dev
+      env: INDI_TEST='g++-6'
       before_script:
         - export CC=gcc-6
         - export CXX=g++-6
@@ -36,6 +37,7 @@ matrix:
           packages:
             - g++-6
             - libboost-test-dev
+      env: INDI_TEST='g++-6 and coveralls'
       install:
         - pip install --user requests[security]
         - pip install --user cpp-coveralls
