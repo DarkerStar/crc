@@ -63,8 +63,6 @@ matrix:
             - libboost-test-dev
       env: INDI_TEST='clang++-3.8'
       before_script:
-        - export CC=clang-3.8
-        - export CXX=clang++-3.8
         - export CPPFLAGS='-std=c++14 -pedantic -Wall -Wno-missing-braces -Wextra -Wconversion -Wshadow'
 
 # `make test` makes the tests and runs them.
