@@ -94,7 +94,9 @@ constexpr auto ones() noexcept
 	
 	// IMPORTANT: The "1" must be cast to T before shifting.
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
+	{
 		val = static_cast<T>(val | (T{1u} << bit));
+	}
 	
 	return val;
 }
@@ -319,7 +321,9 @@ constexpr auto reversed(T polynomial) noexcept
 	
 	for (auto bit = std::size_t{0}; bit < Bits; ++bit)
 	{
-		result = static_cast<T>((polynomial & 1u) | (result << 1));
+		result = static_cast<T>((polynomial & 1u) | 
+			static_cast<std::make_unsigned_t<decltype(result << 1)>>(
+				result << 1));
 		
 		polynomial = static_cast<T>(polynomial >> 1);
 	}
@@ -466,7 +470,8 @@ constexpr auto calculate_next(T current, std::uint_fast8_t b,
 // if someone attempts to use a non-random-access iterator as the
 // table iterator. It will never actually return anything.
 template <typename T, typename InputIterator>
-auto calculate_next(T, std::uint_fast8_t, InputIterator) ->
+auto calculate_next(T /*unused*/, std::uint_fast8_t /*unused*/,
+		InputIterator /*unused*/) ->
 	std::enable_if_t<
 		detail_::is_input_iterator<InputIterator>::value &&
 			!detail_::is_random_access_iterator<InputIterator>::

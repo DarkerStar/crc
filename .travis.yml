@@ -13,7 +13,12 @@ branches:
   - /^release-.*$/
   - /^hotfix-.*$/
 
-# For now, only test with g++ 6 and coveralls
+# Cache Boost.
+cache:
+  directories:
+    - boost/libc++-3.9.0
+
+# For now, only test with g++ 6 and coveralls.
 matrix:
   include:
     - compiler: gcc
@@ -47,6 +52,36 @@ matrix:
         - export CPPFLAGS='-pedantic -Wall -Wextra -Wconversion -Wshadow -g -O0 --coverage'
       after_success:
         - coveralls --verbose --gcov gcov-6 --gcov-options '\--long-file-names --preserve-paths'
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.9
+          packages:
+            - clang++-3.9
+            - libc++-dev
+            - libc++abi-dev
+            - libboost-test-dev
+      env: INDI_TEST='clang++-3.9'
+      install:
+        - mkdir -- clang
+        - ln -s /usr/bin/clang-3.9 clang/clang
+        - ln -s /usr/bin/clang++-3.9 clang/clang++
+        - export PATH="$(pwd)/clang:${PATH}"
+        - |
+          if [[ -z "$(find boost/libc++-3.9.0 -maxdepth 0 -type d -empty 2>/dev/null)" ]] ; then
+            mkdir -p -- boost/libc++-3.9.0
+            travis_retry wget --quiet -O - 'https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz' | \
+              tar --strip-components=1 -xz -C boost/libc++-3.9.0
+            (cd -- boost/libc++-3.9.0 && ./bootstrap.sh --with-toolset=clang --with-libraries=test && ./b2 toolset=clang cxxflags='-std=c++14 -stdlib=libc++'  linkflags='-std=c++14 -stdlib=libc++')
+          fi
+      before_script:
+        - export PATH="$(pwd)/clang:${PATH}"
+        - export CC=clang
+        - export CXX=clang++
+        - export CPPFLAGS='-std=c++14 -stdlib=libc++ -pedantic -Wall -Wno-missing-braces -Wextra -Wconversion -Wshadow'
+        - export CPPFLAGS='-std=c++14 -pedantic -Wall -Wno-missing-braces -Wextra -Wconversion -Wshadow'
 
 # `make test` makes the tests and runs them.
 script:
