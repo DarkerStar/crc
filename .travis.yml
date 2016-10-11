@@ -1,6 +1,6 @@
 # Set distribution to Trusty.
-sudo: required
-dist: trusty
+#sudo: required
+#dist: trusty
 
 # Set language to C++.
 language: cpp
@@ -18,10 +18,10 @@ cache:
   directories:
     - boost/libc++-3.9.0
 
-# For now, only test with g++ 6 and coveralls.
+# Try both GCC and Clang.
 matrix:
   include:
-    - compiler: gcc
+      env: GCC_VERSION=6 CPP=14
       addons:
         apt:
           sources:
@@ -29,29 +29,41 @@ matrix:
           packages:
             - g++-6
             - libboost-test-dev
-      env: INDI_TEST='g++-6'
-      before_script:
-        - export CC=gcc-6
-        - export CXX=g++-6
-        - export CPPFLAGS='-pedantic -Wall -Wextra -Wconversion -Wshadow'
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-            - libboost-test-dev
-      env: INDI_TEST='g++-6 and coveralls'
-      install:
-        - pip install --user requests[security]
-        - pip install --user cpp-coveralls
+            - valgrind
       before_script:
         - export CC=gcc-6
         - export CXX=g++-6
         - export CPPFLAGS='-pedantic -Wall -Wextra -Wconversion -Wshadow -g -O0 --coverage'
       after_success:
         - coveralls --verbose --gcov gcov-6 --gcov-options '\--long-file-names --preserve-paths'
+    - env: CLANG_VERSION=4.0 CPP=14 LIBCXX=false
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise
+          packages:
+            - clang-4.0
+            - libboost-test-dev
+            - valgrind
+      before_script:
+        - export CC=clang-6
+        - export CXX=clang++-6
+        - export CPPFLAGS='-std=c++14 -pedantic -Wall -Wextra -Wconversion -Wshadow -g -O0 --coverage'
+
+# Collect all setup required into one place.
+before_install:
+  - which ${CC}
+  - which ${CXX}
+  - which valgrind
+  - ${CXX} --version
+  - valgrind --version
+
+# Install other prerequisites.
+install:
+  - pip install --user requests[security]
+  - pip install --user cpp-coveralls
 
 # `make test` makes the tests and runs them.
 script:
