@@ -71,4 +71,4 @@ install:
 # `make test` makes the tests and runs them.
 script:
   - make test
-  - valgrind --error-exitcode=1 --leak-check=full test/crc-test
+  - (cd test && valgrind --error-exitcode=1 --leak-check=full ./crc-test)
