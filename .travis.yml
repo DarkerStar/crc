@@ -21,7 +21,7 @@ cache:
 # Try both GCC and Clang.
 matrix:
   include:
-      env: GCC_VERSION=6 CPP=14
+    - env: GCC_VERSION=6 CPP=14
       addons:
         apt:
           sources:
@@ -37,7 +37,6 @@ matrix:
       after_success:
         - coveralls --verbose --gcov gcov-6 --gcov-options '\--long-file-names --preserve-paths'
     - env: CLANG_VERSION=4.0 CPP=14 LIBCXX=false
-      os: linux
       addons:
         apt:
           sources:
