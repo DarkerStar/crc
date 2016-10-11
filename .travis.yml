@@ -22,6 +22,8 @@ cache:
 matrix:
   include:
     - env: GCC_VERSION=6 CPP=14
+      os: linux
+      compiler: gcc
       addons:
         apt:
           sources:
@@ -36,19 +38,21 @@ matrix:
         - export CPPFLAGS='-pedantic -Wall -Wextra -Wconversion -Wshadow -g -O0 --coverage'
       after_success:
         - coveralls --verbose --gcov gcov-6 --gcov-options '\--long-file-names --preserve-paths'
-    - env: CLANG_VERSION=4.0 CPP=14 LIBCXX=false
+    - env: CLANG_VERSION=3.8 CPP=14 LIBCXX=false
+      os: linux
+      compiler: clang
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.8
           packages:
-            - clang-4.0
+            - clang-3.8
             - libboost-test-dev
             - valgrind
       before_script:
-        - export CC=clang-6
-        - export CXX=clang++-6
+        - export CC=clang-3.8
+        - export CXX=clang++-3.8
         - export CPPFLAGS='-std=c++14 -pedantic -Wall -Wextra -Wconversion -Wshadow -g -O0 --coverage'
 
 # Collect all setup required into one place.
@@ -67,3 +71,4 @@ install:
 # `make test` makes the tests and runs them.
 script:
   - make test
+  - valgrind --error-exitcode=1 --leak-check=full test/crc-test
